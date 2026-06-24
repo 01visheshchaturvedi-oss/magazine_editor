@@ -233,7 +233,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     // Determine if we're editing a duplicated element
     const activeDup = duplicatedId ? (state.duplicatedElements || []).find((d) => d.id === duplicatedId) : null;
 
-    const elementId = duplicatedId ? `dup_${duplicatedId}` : `${section}.${field}`;
+    // elementId for transforms/overrides is always `${section}.${field}`.
+    // Duplicate elements store their transform/styles in `duplicatedElements` keyed by `duplicatedId`.
+    const elementId = `${section}.${field}`;
+
 
     // Use duplicate's transform if editing a duplicate
     const transform = activeDup
