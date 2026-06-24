@@ -146,10 +146,10 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
   }) => {
     const elementId = `${section}.${field}`;
     const isSelected = activeElementId === elementId;
-    const transform = (state.transforms || {})[elementId] || { x: 0, y: 0, scale: 1.0 };
+    const transform = (state.transforms || {})[elementId] || { x: 0, y: 0, scale: 1.0, scaleX: 1.0, scaleY: 1.0 };
 
     const style: React.CSSProperties = {
-      transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale}) rotate(${transform.rotation ?? 0}deg)`,
+      transform: `translate(${transform.x}px, ${transform.y}px) scaleX(${(transform as any).scaleX ?? transform.scale}) scaleY(${(transform as any).scaleY ?? transform.scale}) scale(${transform.scale}) rotate(${transform.rotation ?? 0}deg)`,
       transformOrigin: 'center',
       transition: 'box-shadow 0.2s ease',
       display: className.includes('inline') ? 'inline-block' : 'block',
@@ -193,27 +193,78 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
       window.addEventListener('touchend', handlePointerUp);
     };
 
-    const handleResizeStart = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>, corner: 'nw' | 'ne' | 'se' | 'sw') => {
+    const handleResizeStart = (
+      e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
+      dir: 'nw' | 'ne' | 'se' | 'sw' | 'n' | 's' | 'e' | 'w'
+    ) => {
       e.stopPropagation();
       e.preventDefault();
 
       const isTouch = 'touches' in e;
-      const startX = isTouch ? (e as React.TouchEvent).touches[0].clientX : (e as React.MouseEvent).clientX;
+      const startClientX = isTouch ? (e as React.TouchEvent).touches[0].clientX : (e as React.MouseEvent).clientX;
+      const startClientY = isTouch ? (e as React.TouchEvent).touches[0].clientY : (e as React.MouseEvent).clientY;
       const startScale = transform.scale;
+      const startX = transform.x;
+      const startY = transform.y;
 
       const handleMove = (moveEvent: MouseEvent | TouchEvent) => {
         const isMoveTouch = 'touches' in moveEvent;
-        const currentX = isMoveTouch ? (moveEvent as TouchEvent).touches[0].clientX : (moveEvent as MouseEvent).clientX;
+        const currentClientX = isMoveTouch ? (moveEvent as TouchEvent).touches[0].clientX : (moveEvent as MouseEvent).clientX;
+        const currentClientY = isMoveTouch ? (moveEvent as TouchEvent).touches[0].clientY : (moveEvent as MouseEvent).clientY;
 
-        let deltaX = currentX - startX;
-        if (corner === 'sw' || corner === 'nw') deltaX = -deltaX;
+        const deltaX = currentClientX - startClientX;
+        const deltaY = currentClientY - startClientY;
 
-        // Dead zone: ignore movements under 5px to prevent accidental scale changes
-        if (Math.abs(deltaX) < 5) return;
+        const startScaleX = (transform as any).scaleX ?? startScale;
+        const startScaleY = (transform as any).scaleY ?? startScale;
 
-        const newScale = Math.max(0.2, Math.min(3, startScale + deltaX * 0.005));
-        onUpdateTransform(elementId, { scale: Math.round(newScale * 100) / 100 });
+        // Dead zone: ignore tiny movements
+        if (Math.abs(deltaX) < 2 && Math.abs(deltaY) < 2) return;
+
+        // For side handles: change only one axis. For corners: change both.
+        let nextScaleX = startScaleX;
+        let nextScaleY = startScaleY;
+        let nextX = startX;
+        let nextY = startY;
+
+        // Horizontal (E/W)
+        if (dir.includes('e') || dir.includes('w')) {
+          // dragging right increases width (E), dragging left decreases width (W)
+          let axisDeltaX = deltaX;
+          if (dir.includes('w')) axisDeltaX = -axisDeltaX;
+
+          const newSX = Math.max(0.2, Math.min(3, startScaleX + axisDeltaX * 0.005));
+          nextScaleX = Math.round(newSX * 100) / 100;
+
+          // Anchor nudge so the opposite side stays visually in place.
+          const anchorNudgeX = axisDeltaX * 0.5;
+          if (dir.includes('e')) nextX = startX + anchorNudgeX;
+          if (dir.includes('w')) nextX = startX - anchorNudgeX;
+        }
+
+        // Vertical (N/S)
+        if (dir.includes('n') || dir.includes('s')) {
+          let axisDeltaY = deltaY;
+          if (dir.includes('n')) axisDeltaY = -axisDeltaY;
+
+          const newSY = Math.max(0.2, Math.min(3, startScaleY + axisDeltaY * 0.005));
+          nextScaleY = Math.round(newSY * 100) / 100;
+
+          const anchorNudgeY = axisDeltaY * 0.5;
+          if (dir.includes('n')) nextY = startY - anchorNudgeY;
+          if (dir.includes('s')) nextY = startY + anchorNudgeY;
+        }
+
+        onUpdateTransform(elementId, {
+          x: Math.round(nextX),
+          y: Math.round(nextY),
+          // keep scale for backward compatibility
+          scale: (Math.round(((nextScaleX + nextScaleY) / 2) * 100) / 100),
+          scaleX: nextScaleX,
+          scaleY: nextScaleY,
+        });
       };
+
 
       const handleUp = () => {
         window.removeEventListener('mousemove', handleMove);
@@ -432,8 +483,9 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
           </span>
         )}
 
-        {/* 4-corner resize handles — only when element is selected */}
-        {isSelected && ['nw','ne','se','sw'].map((corner) => {
+        {/* Resize handles — include sides (N/S/E/W) too */}
+        {isSelected && ['nw','n','ne','e','se','s','sw','w'].map((corner) => {
+
           const invScale = 1 / (transform.scale || 1);
           const hitSize = 24;
           const visSize = 12;
