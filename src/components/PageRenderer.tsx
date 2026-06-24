@@ -528,7 +528,15 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
         const startElX = el.x;
         const startElY = el.y;
         const ratio = el.height / (el.width || 1);
-        let newW = Math.max(40, startW + deltaX);
+
+        const handleMove = (moveEvent: MouseEvent | TouchEvent) => {
+          const isMoveTouch = 'touches' in moveEvent;
+          const currentX = isMoveTouch ? (moveEvent as TouchEvent).touches[0].clientX : (moveEvent as MouseEvent).clientX;
+          const currentY = isMoveTouch ? (moveEvent as TouchEvent).touches[0].clientY : (moveEvent as MouseEvent).clientY;
+          const deltaX = currentX - startX;
+          const deltaY = currentY - startY;
+
+          let newW = Math.max(40, startW + deltaX);
           let newH = Math.max(40, startH + deltaY);
           const updates: Partial<CanvasElement> = {};
 
@@ -566,8 +574,22 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
           updates.width = newW;
           updates.height = newH;
           onUpdateCanvasElement?.(el.id, updates);
+        };
 
-      const glowStyle =      const glowStyle = el.glowColor ? { filter: `drop-shadow(0 0 ${el.glowWidth ?? 15}px ${el.glowColor})` } : {};
+        const handleUp = () => {
+          window.removeEventListener('mousemove', handleMove);
+          window.removeEventListener('mouseup', handleUp);
+          window.removeEventListener('touchmove', handleMove);
+          window.removeEventListener('touchend', handleUp);
+        };
+
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleUp);
+        window.addEventListener('touchmove', handleMove, { passive: true });
+        window.addEventListener('touchend', handleUp);
+      };
+
+      const glowStyle = el.glowColor ? { filter: `drop-shadow(0 0 ${el.glowWidth ?? 15}px ${el.glowColor})` } : {};
 
       return (
         <div
