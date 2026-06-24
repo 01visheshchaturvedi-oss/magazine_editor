@@ -1,0 +1,6 @@
+{
+  "name": "EduCover Studio",
+  "description": "Interactive magazine and study material cover page generator for educators and students with multiple high-contrast themes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
