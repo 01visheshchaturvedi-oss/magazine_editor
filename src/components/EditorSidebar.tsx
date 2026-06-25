@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { AppState, ThemeId, PageType, CanvasElement, ElementShadowConfig, GradientConfig, gradientToCss, shadowToCss, BackgroundLayer } from '../types';
+import { AppState, ThemeId, PageType, CanvasElement, ElementShadowConfig, GradientConfig, gradientToCss, shadowToCss, BackgroundLayer, SYMBOLS } from '../types';
 import { COMPILATION_THEMES } from '../data';
 import { 
   Paintbrush, 
@@ -48,7 +48,7 @@ interface EditorSidebarProps {
   onUpdateElementGlowWidth?: (elementId: string, width: number | undefined) => void;
   onUpdateElementShadow?: (elementId: string, shadow: ElementShadowConfig | undefined) => void;
   onUpdateElementGradient?: (elementId: string, gradient: GradientConfig | undefined) => void;
-  onAddCanvasElement?: (type: 'text' | 'box', overrides?: Partial<CanvasElement>) => void;
+  onAddCanvasElement?: (type: 'text' | 'box' | 'symbol', overrides?: Partial<CanvasElement>) => void;
   onUpdateCanvasElement?: (id: string, updates: Partial<CanvasElement>) => void;
   onRemoveCanvasElement?: (id: string) => void;
   selectedCanvasId: string | null;
@@ -438,8 +438,11 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             };
 
             return (
-              <div className="pt-1.5 pb-1">
-                <span className="text-[9px] text-zinc-500 uppercase tracking-wider font-bold block mb-1.5">Text Style</span>
+              <details open className="pt-1.5 pb-1 border-t border-zinc-805/50">
+                <summary className="text-[9px] text-zinc-500 uppercase tracking-wider font-bold block mb-1.5 cursor-pointer list-none flex items-center justify-between">
+                  <span>Text Style</span>
+                  <span className="text-zinc-600 text-[10px]">+</span>
+                </summary>
                 <div className="flex gap-1">
                   {/* Bold Toggle */}
                   <button
@@ -507,7 +510,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     </button>
                   )}
                 </div>
-              </div>
+              </details>
             );
           })()}
 
@@ -721,8 +724,11 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             };
 
             return (
-              <div className="pt-3.5 border-t border-zinc-805/50 space-y-2">
-                <span className="text-[10px] text-zinc-400 block uppercase font-bold text-left">Font Face / Style Override</span>
+              <details open className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+                <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
+                  <span>Font Face / Style Override</span>
+                  <span className="text-zinc-600 text-[10px]">+</span>
+                </summary>
                 <div className="flex gap-2">
                   <select
                     value={currentFont || ''}
@@ -757,7 +763,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     </button>
                   )}
                 </div>
-              </div>
+              </details>
             );
           })()}
 
@@ -779,9 +785,12 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             };
 
             return (
-              <div className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+              <details open className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+                <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
+                  <span>Accent / Border Highlight Color</span>
+                  <span className="text-zinc-600 text-[10px]">+</span>
+                </summary>
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-zinc-400 block uppercase font-bold text-left">Accent / Border Highlight Color</span>
                   <span className="text-[9px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
                     {currentAccentColor === undefined ? 'Theme Default' : currentAccentColor}
                   </span>
@@ -829,7 +838,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     </button>
                   )}
                 </div>
-              </div>
+              </details>
             );
           })()}
 
@@ -849,9 +858,12 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             };
 
             return (
-              <div className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+              <details open className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+                <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
+                  <span>Outer Glow</span>
+                  <span className="text-zinc-600 text-[10px]">+</span>
+                </summary>
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-zinc-400 block uppercase font-bold text-left">Outer Glow</span>
                   <span className="text-[9px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
                     {currentGlowColor === undefined ? 'Off' : currentGlowColor}
                   </span>
@@ -917,7 +929,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     </button>
                   </div>
                 )}
-              </div>
+              </details>
             );
           })()}
 
@@ -939,10 +951,11 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             };
 
             return (
-              <div className="pt-3.5 border-t border-zinc-805/50 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-zinc-400 block uppercase font-bold text-left">Shadow</span>
-                </div>
+              <details open className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+                <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
+                  <span>Shadow</span>
+                  <span className="text-zinc-600 text-[10px]">+</span>
+                </summary>
 
                 <div className="flex flex-wrap gap-1.5 items-center">
                   <input
@@ -1056,7 +1069,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     </button>
                   </div>
                 )}
-              </div>
+              </details>
             );
           })()}
 
@@ -1104,10 +1117,11 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             ];
 
             return (
-              <div className="pt-3.5 border-t border-zinc-805/50 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-zinc-400 block uppercase font-bold text-left">Gradient Text</span>
-                </div>
+              <details open className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+                <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
+                  <span>Gradient Text</span>
+                  <span className="text-zinc-600 text-[10px]">+</span>
+                </summary>
 
                 <div className="flex flex-wrap gap-1.5 items-center">
                   {presets.map((preset) => (
@@ -1206,7 +1220,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     </button>
                   </div>
                 )}
-              </div>
+              </details>
             );
           })()}
 
@@ -1620,6 +1634,18 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
               </div>
             </div>
 
+            {(state.customPrimaryColor || state.customBackgroundColor || state.customTextColor) && (
+              <button
+                type="button"
+                onClick={() => {
+                  onChangeTheme(state.currentTheme);
+                }}
+                className={`w-full py-2 text-[9px] border border-dashed rounded-lg font-mono transition-colors cursor-pointer ${isDark ? 'bg-amber-950/20 hover:bg-amber-900/30 border-amber-500/30 text-amber-400' : 'bg-amber-50 hover:bg-amber-100 border-amber-300/50 text-amber-700'}`}
+              >
+                Reset Theme to Default Colors
+              </button>
+            )}
+
             {/* Background Effects — multi-layer theme compositing with blur */}
             <div className={`${s.panelSolid} p-4 space-y-3`}>
               <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b ${s.divider} ${s.textPrimary}`}>
@@ -1720,8 +1746,8 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       <div className="flex gap-1.5 items-center">
                         <span className="text-[8px] text-zinc-500 w-12">Blend</span>
                         <select
-                          value={layer.mixBlendMode || 'normal'}
-                          onChange={(e) => onUpdateBackgroundLayer?.(i, { mixBlendMode: e.target.value })}
+                          value={layer.blendMode || 'normal'}
+                          onChange={(e) => onUpdateBackgroundLayer?.(i, { blendMode: e.target.value })}
                           className="flex-1 rounded border p-1 text-[8px] font-mono bg-zinc-950 text-zinc-300 border-zinc-800"
                         >
                           {['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion'].map((m) => (
@@ -2419,6 +2445,24 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
               </button>
             </div>
 
+            {/* Symbol picker grid */}
+            <div className="space-y-1.5">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Add Symbol</div>
+              <div className="grid grid-cols-6 gap-1">
+                {SYMBOLS.map((sym) => (
+                  <button
+                    key={sym.char}
+                    type="button"
+                    onClick={() => onAddCanvasElement?.('symbol', { content: sym.char })}
+                    className="py-2 px-1 border border-dashed border-zinc-600 rounded-lg text-sm font-mono text-zinc-300 hover:border-[#ccff00] hover:text-[#ccff00] bg-zinc-900/40 hover:bg-zinc-800/40 transition-colors cursor-pointer text-center"
+                    title={sym.label}
+                  >
+                    {sym.char}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* List of existing canvas elements */}
             <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Canvas Elements</div>
             <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
@@ -2433,8 +2477,8 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                   className="flex items-center justify-between gap-2 py-1.5 px-2 rounded-lg border border-zinc-800 bg-zinc-900/50"
                 >
                   <span className="text-[10px] font-mono text-zinc-300 truncate flex-1">
-                    {el.type === 'box' ? '📦 Box' : '📝 Text'}
-                    {el.content ? `: "${el.content.slice(0, 20)}${el.content.length > 20 ? '...' : ''}"` : ''}
+                    {el.type === 'box' ? '📦 Box' : el.type === 'symbol' ? `🔣 ${el.content}` : '📝 Text'}
+                    {el.type !== 'symbol' && el.content ? `: "${el.content.slice(0, 20)}${el.content.length > 20 ? '...' : ''}"` : ''}
                   </span>
                   <button
                     type="button"

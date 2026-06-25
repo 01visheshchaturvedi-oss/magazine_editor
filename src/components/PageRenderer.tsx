@@ -683,13 +683,13 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
 
       const canvasTextStyle: React.CSSProperties = {};
       if (elShadowCss) {
-        if (el.type === 'text') {
+        if (el.type === 'text' || el.type === 'symbol') {
           canvasTextStyle.textShadow = elShadowCss;
         } else {
           canvasTextStyle.boxShadow = elShadowCss;
         }
       }
-      if (elGradientCss && el.type === 'text') {
+      if (elGradientCss && (el.type === 'text' || el.type === 'symbol')) {
         canvasTextStyle.background = elGradientCss;
         canvasTextStyle.backgroundClip = 'text';
         (canvasTextStyle as any).WebkitBackgroundClip = 'text';
@@ -724,8 +724,8 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
             textDecoration: el.underline ? 'underline' : undefined,
             padding: el.type === 'text' ? '8px 12px' : undefined,
             display: 'flex',
-            alignItems: el.type === 'text' ? 'center' : 'stretch',
-            justifyContent: el.type === 'text' ? 'flex-start' : 'stretch',
+            alignItems: el.type === 'symbol' ? 'center' : el.type === 'text' ? 'center' : 'stretch',
+            justifyContent: el.type === 'symbol' ? 'center' : el.type === 'text' ? 'flex-start' : 'stretch',
             overflow: 'hidden',
             wordBreak: 'break-word',
             userSelect: 'none',
@@ -764,6 +764,19 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
             />
+          ) : el.type === 'symbol' ? (
+            <span
+              style={{
+                pointerEvents: isSelected ? 'auto' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                height: '100%',
+              }}
+            >
+              {el.content || '∑'}
+            </span>
           ) : el.type === 'text' ? (
             <span
               onDoubleClick={(e) => { e.stopPropagation(); setEditingCanvasId(el.id); }}

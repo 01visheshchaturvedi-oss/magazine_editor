@@ -189,7 +189,13 @@ export default function App() {
   };
 
   const handleChangeTheme = (theme: ThemeId) => {
-    setState((prev) => ({ ...prev, currentTheme: theme }));
+    setState((prev) => ({
+      ...prev,
+      currentTheme: theme,
+      customPrimaryColor: undefined,
+      customBackgroundColor: undefined,
+      customTextColor: undefined,
+    }));
   };
 
   const handleChangePage = (page: PageType) => {
@@ -485,13 +491,18 @@ export default function App() {
   };
 
   // Canvas free-form element handlers
-  const handleAddCanvasElement = (type: 'text' | 'box', overrides?: Partial<CanvasElement>) => {
+  const handleAddCanvasElement = (type: 'text' | 'box' | 'symbol', overrides?: Partial<CanvasElement>) => {
     setState((prev) => {
       const elements = prev.canvasElements || [];
       const count = elements.length;
-      const defaults: CanvasElement = type === 'box'
-        ? { id: `ce_${Date.now()}`, page: prev.currentPage, type: 'box', x: 80 + count * 25, y: 80 + count * 25, width: 200, height: 150, rotation: 0, scale: 1, content: '', backgroundColor: '#1a1a2e', borderColor: '#ccff00', borderWidth: 2, borderRadius: 8, opacity: 1, zIndex: 10 }
-        : { id: `ce_${Date.now()}`, page: prev.currentPage, type: 'text', x: 80 + count * 25, y: 80 + count * 25, width: 240, height: 40, rotation: 0, scale: 1, content: 'New Text', textColor: '#ffffff', fontSize: 16, fontFamily: 'sans-serif', opacity: 1, zIndex: 10 };
+      let defaults: CanvasElement;
+      if (type === 'box') {
+        defaults = { id: `ce_${Date.now()}`, page: prev.currentPage, type: 'box', x: 80 + count * 25, y: 80 + count * 25, width: 200, height: 150, rotation: 0, scale: 1, content: '', backgroundColor: '#1a1a2e', borderColor: '#ccff00', borderWidth: 2, borderRadius: 8, opacity: 1, zIndex: 10 };
+      } else if (type === 'symbol') {
+        defaults = { id: `ce_${Date.now()}`, page: prev.currentPage, type: 'symbol', x: 80 + count * 25, y: 80 + count * 25, width: 60, height: 60, rotation: 0, scale: 1, content: '∑', textColor: '#ccff00', fontSize: 32, fontFamily: 'sans-serif', opacity: 1, zIndex: 10 };
+      } else {
+        defaults = { id: `ce_${Date.now()}`, page: prev.currentPage, type: 'text', x: 80 + count * 25, y: 80 + count * 25, width: 240, height: 40, rotation: 0, scale: 1, content: 'New Text', textColor: '#ffffff', fontSize: 16, fontFamily: 'sans-serif', opacity: 1, zIndex: 10 };
+      }
       return { ...prev, canvasElements: [...elements, { ...defaults, ...overrides, id: defaults.id, type }] };
     });
   };
@@ -904,7 +915,7 @@ export default function App() {
       </header>
 
       {/* CORE FRAMEWORK AREA: WORKSPACE */}
-      <div className={`flex-1 flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x transition-colors ${isDark ? 'divide-zinc-800' : 'divide-slate-200'}`}>
+      <div className={`flex-1 flex flex-col lg:flex-row overflow-hidden divide-y lg:divide-y-0 lg:divide-x transition-colors ${isDark ? 'divide-zinc-800' : 'divide-slate-200'}`}>
         
         {/* Left Side: Sidebar controls & customizations options */}
         <EditorSidebar
@@ -976,7 +987,7 @@ export default function App() {
         />
 
         {/* Middle/Right Side: Live visual canvas screen preview */}
-        <main className={`flex-1 p-6 lg:p-12 flex flex-col items-center justify-center relative min-h-[500px] transition-colors ${isDark ? 'bg-zinc-950' : 'bg-slate-50'}`}>
+        <main className={`flex-1 p-6 lg:p-12 flex flex-col items-center justify-center relative min-h-[500px] overflow-y-auto transition-colors ${isDark ? 'bg-zinc-950' : 'bg-slate-50'}`}>
           
           {/* Guide Bar with Zoom Controls */}
           <div className={`w-full max-w-3xl mb-3 flex items-center justify-between text-[11px] px-3 py-2 rounded-xl border transition-colors ${

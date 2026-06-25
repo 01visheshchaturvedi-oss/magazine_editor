@@ -153,6 +153,33 @@ export function shadowToCss(s: ElementShadowConfig, forText: boolean): string {
   return `${sI}${s.offsetX}px ${s.offsetY}px ${s.blur}px ${s.spread}px ${s.color}`;
 }
 
+export const SYMBOLS: { char: string; label: string }[] = [
+  { char: '∑', label: 'Sum' },
+  { char: '∫', label: 'Integral' },
+  { char: '√', label: 'Root' },
+  { char: 'π', label: 'Pi' },
+  { char: '∆', label: 'Delta' },
+  { char: 'θ', label: 'Theta' },
+  { char: 'α', label: 'Alpha' },
+  { char: 'β', label: 'Beta' },
+  { char: '∞', label: 'Infinity' },
+  { char: '≠', label: 'Not Equal' },
+  { char: '≈', label: 'Approx' },
+  { char: '≤', label: 'Less Eq' },
+  { char: '≥', label: 'Greater Eq' },
+  { char: '∂', label: 'Partial' },
+  { char: '∇', label: 'Nabla' },
+  { char: 'λ', label: 'Lambda' },
+  { char: 'μ', label: 'Mu' },
+  { char: 'σ', label: 'Sigma' },
+  { char: 'ω', label: 'Omega' },
+  { char: 'φ', label: 'Phi' },
+  { char: '∈', label: 'In Set' },
+  { char: '∉', label: 'Not In' },
+  { char: '∴', label: 'Therefore' },
+  { char: '∅', label: 'Empty Set' },
+];
+
 export interface DuplicatedElement {
   id: string;
   type: 'text' | 'image';
@@ -173,7 +200,7 @@ export interface DuplicatedElement {
 export interface CanvasElement {
   id: string;
   page: string;
-  type: 'text' | 'box';
+  type: 'text' | 'box' | 'symbol';
   x: number;
   y: number;
   width: number;
