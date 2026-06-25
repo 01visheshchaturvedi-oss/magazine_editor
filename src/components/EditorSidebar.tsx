@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { AppState, ThemeId, PageType, CanvasElement, ElementShadowConfig, GradientConfig, gradientToCss, shadowToCss, BackgroundLayer, SYMBOLS, BackgroundDecorationId, BACKGROUND_DECORATIONS } from '../types';
+import { AppState, ThemeId, PageType, CanvasElement, ElementShadowConfig, GradientConfig, gradientToCss, shadowToCss, BackgroundLayer, SYMBOLS, BackgroundDecorationId, BACKGROUND_DECORATIONS, Template } from '../types';
 import { COMPILATION_THEMES } from '../data';
+import { PREBUILT_TEMPLATES, TEMPLATE_CATEGORIES } from '../templates';
 import { 
   Paintbrush, 
   RotateCcw, 
@@ -22,13 +23,15 @@ import {
   FolderOpen,
   Sparkles,
   HelpCircle,
-  Square
+  Square,
+  LayoutDashboard
 } from 'lucide-react';
 
 interface EditorSidebarProps {
   state: AppState;
   onChangeTheme: (theme: ThemeId) => void;
   onChangePage: (page: PageType) => void;
+  onLoadTemplate: (template: Template) => void;
   onUpdatePhoto: (key: string, value: any) => void;
   onUpdateText: (section: string, key: string, value: any) => void;
   onResetData: () => void;
@@ -112,14 +115,16 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   onRemoveBackgroundLayer,
   onUpdateBackgroundLayer,
   onSetBackgroundBlur,
-  onUpdateAppState
+  onUpdateAppState,
+  onLoadTemplate
 }) => {
   const [designName, setDesignName] = useState('');
+  const [templateCategory, setTemplateCategory] = useState<string>('all');
   const isDark = appTheme === 'dark';
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // High-fidelity tab identifier: pages, design, photo, editor
-  const [activeTab, setActiveTab] = useState<'pages' | 'design' | 'photo' | 'editor' | 'elements'>('pages');
+  // High-fidelity tab identifier: pages, design, photo, editor, elements, templates
+  const [activeTab, setActiveTab] = useState<'pages' | 'design' | 'photo' | 'editor' | 'elements' | 'templates'>('pages');
 
   // Theme-aware accent color (lime for dark, emerald for light so it's visible)
   const accent = isDark ? '#ccff00' : '#059669';
@@ -142,7 +147,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     textPrimary: isDark ? 'text-white' : 'text-slate-900',
     textSecondary: isDark ? 'text-zinc-300' : 'text-slate-700',
     textMuted: isDark ? 'text-zinc-400' : 'text-slate-500',
-    tabBar: `grid grid-cols-5 gap-1 p-1 rounded-xl border shadow-inner ${isDark ? 'bg-zinc-950 border-zinc-855/80' : 'bg-slate-100 border-slate-200'}`,
+    tabBar: `grid grid-cols-6 gap-1 p-1 rounded-xl border shadow-inner ${isDark ? 'bg-zinc-950 border-zinc-855/80' : 'bg-slate-100 border-slate-200'}`,
     tabBtn: (sel: boolean) => sel
       ? `py-2 px-1 rounded-lg text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${isDark ? 'bg-zinc-800 text-white border border-zinc-700 shadow-md scale-105' : 'bg-white text-slate-900 border border-slate-300 shadow-sm scale-105'}`
       : `py-2 px-1 rounded-lg text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${isDark ? 'text-zinc-400 hover:text-white hover:bg-zinc-900/50' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`,
@@ -1515,6 +1520,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
           { id: 'pages', label: 'Pages', icon: BookOpen, tooltip: 'Page & Layers List' },
           { id: 'design', label: 'Design', icon: Paintbrush, tooltip: 'Global Themes' },
           { id: 'photo', label: 'Teacher', icon: User, tooltip: 'Portrait Picture' },
+          { id: 'templates', label: 'Templates', icon: LayoutDashboard, tooltip: 'Pre-built templates gallery' },
           { id: 'editor', label: 'Layer', icon: Settings, tooltip: 'Layer Properties', badge: activeElement ? '•' : null },
           { id: 'elements', label: 'Elements', icon: Square, tooltip: 'Add free-form boxes & text' }
         ].map((tab) => {
@@ -2464,6 +2470,85 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             </div>
           )}
         </div>
+        )}
+
+        {/* ================= TAB 5: TEMPLATES GALLERY ================= */}
+        {activeTab === 'templates' && (
+          <div className="space-y-4 animate-fadeIn">
+            <div className="flex items-center gap-1.5">
+              <LayoutDashboard size={13} className={isDark ? 'text-[#ccff00]' : 'text-emerald-600'} />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Pre-Built Templates</span>
+              <span className="ml-auto text-[9px] font-mono text-zinc-500">{PREBUILT_TEMPLATES.length} designs</span>
+            </div>
+
+            {/* Category filter chips */}
+            <div className="flex flex-wrap gap-1.5">
+              {['all', ...TEMPLATE_CATEGORIES].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setTemplateCategory(cat === 'all' ? 'all' : cat)}
+                  className={`px-2 py-1 rounded-lg text-[10px] font-mono border transition-all cursor-pointer shrink-0 ${
+                    templateCategory === cat
+                      ? 'border-[#ccff00] bg-[#ccff00]/10 text-[#ccff00]'
+                      : isDark
+                        ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:border-zinc-600'
+                        : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:border-slate-300'
+                  }`}
+                >
+                  {cat === 'all' ? 'All' : cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Template cards grid */}
+            <div className="grid grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto pr-1">
+              {PREBUILT_TEMPLATES
+                .filter(t => templateCategory === 'all' || t.category === templateCategory)
+                .map((tpl) => (
+                  <div
+                    key={tpl.id}
+                    className={`group rounded-xl border overflow-hidden transition-all duration-200 hover:scale-[1.02] cursor-pointer ${
+                      isDark
+                        ? 'bg-zinc-900/60 border-zinc-800 hover:border-[#ccff00]/50 hover:bg-zinc-850'
+                        : 'bg-white border-slate-200 hover:border-emerald-400/50 hover:bg-slate-50'
+                    }`}
+                    onClick={() => onLoadTemplate?.(tpl)}
+                  >
+                    {/* Template thumbnail */}
+                    <div className="h-20 flex items-center justify-center overflow-hidden" style={{
+                      background: tpl.previewGradient || 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
+                    }}>
+                      <span className="text-xl font-bold opacity-30 select-none" style={{ color: tpl.theme === 'neon-green' ? '#ccff00' : tpl.theme === 'midnight-purple' ? '#a78bfa' : tpl.theme === 'gold-navy' ? '#fbbf24' : '#fff' }}>
+                        {tpl.name.split(' ').map(w => w[0]).join('').slice(0, 3)}
+                      </span>
+                    </div>
+
+                    {/* Template info */}
+                    <div className="p-2 space-y-1">
+                      <div className="text-[10px] font-bold truncate">{tpl.name}</div>
+                      <div className="text-[8px] font-mono text-zinc-500 line-clamp-2">{tpl.description}</div>
+                      <div className="flex flex-wrap gap-1 pt-0.5">
+                        <span className={`px-1.5 py-0.5 rounded text-[7px] font-mono uppercase tracking-wider ${
+                          isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-slate-100 text-slate-500'
+                        }`}>
+                          {tpl.pageType}
+                        </span>
+                        <span className={`px-1.5 py-0.5 rounded text-[7px] font-mono uppercase tracking-wider ${
+                          isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-slate-100 text-slate-500'
+                        }`}>
+                          {tpl.theme}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            <div className="text-[8px] font-mono text-zinc-500 italic text-center pt-1">
+              Templates set theme, colors, layout & decorations — you can still tweak everything after
+            </div>
+          </div>
         )}
 
         {/* ================= TAB 5: FREE-FORM CANVAS ELEMENTS ================= */}

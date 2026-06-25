@@ -197,6 +197,18 @@ export interface DuplicatedElement {
   customGradient?: GradientConfig;
 }
 
+// ── Template System ──────────────────────────────────────────────
+
+export interface Template {
+  id: string;
+  name: string;
+  description: string;
+  category: 'featured' | 'math' | 'exam' | 'author' | 'promo';
+  tags: string[];
+  thumbnailEmoji: string;  // Emoji or short icon character for the template card
+  state: Partial<AppState>;
+}
+
 export interface CanvasElement {
   id: string;
   page: string;
@@ -268,7 +280,7 @@ export interface AppState {
   decorationOpacity?: number;
 }
 
-export type BackgroundDecorationId = 'none' | 'math-ring' | 'dot-grid' | 'wave-lines' | 'rings' | 'stars' | 'hexagons' | 'crosshatch' | 'diagonal-lines' | 'scattered-circles' | 'zigzag';
+export type BackgroundDecorationId = 'none' | 'math-ring' | 'dot-grid' | 'wave-lines' | 'rings' | 'stars' | 'hexagons' | 'crosshatch' | 'diagonal-lines' | 'scattered-circles' | 'zigzag' | 'fraction-ring' | 'formula-flow';
 
 export const BACKGROUND_DECORATIONS: { id: BackgroundDecorationId; label: string; description: string }[] = [
   { id: 'none', label: 'None', description: 'No background decoration' },
@@ -282,5 +294,7 @@ export const BACKGROUND_DECORATIONS: { id: BackgroundDecorationId; label: string
   { id: 'diagonal-lines', label: 'Diagonal Stripes', description: 'Subtle diagonal striped pattern' },
   { id: 'scattered-circles', label: 'Scattered Circles', description: 'Randomly placed circle outlines' },
   { id: 'zigzag', label: 'Zigzag Waves', description: 'Sharp zigzag wave lines' },
+  { id: 'fraction-ring', label: 'Fraction-Percentage Ring', description: 'Fraction-percentage pairs (½=50%, ¼=25%, …) in an orbital ring' },
+  { id: 'formula-flow', label: 'Formula Flow', description: 'Floating formula patterns: actual value/total value × 100' },
 ];
 

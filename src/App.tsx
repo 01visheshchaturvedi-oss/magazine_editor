@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { PageType, ThemeId, AppState, DuplicatedElement, CanvasElement, ElementShadowConfig, GradientConfig, BackgroundLayer } from './types';
+import { PageType, ThemeId, AppState, DuplicatedElement, CanvasElement, Template, ElementShadowConfig, GradientConfig, BackgroundLayer } from './types';
 import { INITIAL_STATE, COMPILATION_THEMES } from './data';
 import { PageRenderer } from './components/PageRenderer';
 import { EditorSidebar } from './components/EditorSidebar';
@@ -233,7 +233,46 @@ export default function App() {
         const idx = parseInt(field.split('.')[1]);
         return prev.coverData.bulletPoints[idx] || '';
       }
-      return (prev.coverData as any)[field] || '';
+      
+  // Load a pre-built template, applying its state snapshot
+  const handleLoadTemplate = useCallback((template: Template) => {
+    const updates: Partial<AppState> = {
+      title: template.title,
+      subtitle: template.subtitle,
+      currentPage: template.currentPage,
+      pageType: template.pageType,
+      theme: template.theme,
+      backgroundDecoration: template.backgroundDecoration,
+      showTeacherPhoto: template.showTeacherPhoto,
+      ...(template.accent !== undefined ? { accent: template.accent } : {}),
+      ...(template.glowColor !== undefined ? { glowColor: template.glowColor } : {}),
+      ...(template.textShadowColor !== undefined ? { textShadowColor: template.textShadowColor } : {}),
+      ...(template.gradientConfig !== undefined ? { gradientConfig: template.gradientConfig } : {}),
+      ...(template.backgroundLayers !== undefined ? { backgroundLayers: template.backgroundLayers } : {}),
+      ...(template.decorationColor !== undefined ? { decorationColor: template.decorationColor } : {}),
+      ...(template.photoOpacity !== undefined ? { photoOpacity: template.photoOpacity } : {}),
+      ...(template.photoBorderColor !== undefined ? { photoBorderColor: template.photoBorderColor } : {}),
+      ...(template.photoBorderWidth !== undefined ? { photoBorderWidth: template.photoBorderWidth } : {}),
+      ...(template.photoGlowColor !== undefined ? { photoGlowColor: template.photoGlowColor } : {}),
+      ...(template.photoGlowIntensity !== undefined ? { photoGlowIntensity: template.photoGlowIntensity } : {}),
+      ...(template.photoZoom !== undefined ? { photoZoom: template.photoZoom } : {}),
+      ...(template.titleSize !== undefined ? { titleSize: template.titleSize } : {}),
+      ...(template.titleFont !== undefined ? { titleFont: template.titleFont } : {}),
+      ...(template.subtitleSize !== undefined ? { subtitleSize: template.subtitleSize } : {}),
+      ...(template.subtitleFont !== undefined ? { subtitleFont: template.subtitleFont } : {}),
+      ...(template.customColors !== undefined ? { customColors: template.customColors } : {}),
+      ...(template.canvasElements !== undefined ? { canvasElements: template.canvasElements } : {}),
+      ...(template.layerOrder !== undefined ? { layerOrder: template.layerOrder } : {}),
+      ...(template.decorationStyle !== undefined ? { decorationStyle: template.decorationStyle } : {}),
+      ...(template.textElements !== undefined ? { textElements: template.textElements } : {}),
+      ...(template.photoSize !== undefined ? { photoSize: template.photoSize } : {}),
+      ...(template.photoX !== undefined ? { photoX: template.photoX } : {}),
+      ...(template.photoY !== undefined ? { photoY: template.photoY } : {}),
+    };
+    setState(prev => ({ ...prev, ...updates }));
+  }, [setState]);
+
+return (prev.coverData as any)[field] || '';
     }
     if (section === 'index') return (prev.indexData as any)[field] || '';
     if (section === 'topper') return (prev.topperData as any)[field] || '';

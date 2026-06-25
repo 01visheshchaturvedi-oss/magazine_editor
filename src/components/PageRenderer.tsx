@@ -1265,6 +1265,124 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
               </div>
             );
           }
+          case 'fraction-ring': {
+            const fractions = [
+              { frac: '½', pct: '50%' },
+              { frac: '¼', pct: '25%' },
+              { frac: '⅕', pct: '20%' },
+              { frac: '⅙', pct: '16.66%' },
+              { frac: '⅐', pct: '14.28%' },
+              { frac: '⅛', pct: '12.5%' },
+              { frac: '⅑', pct: '11.11%' },
+              { frac: '⅒', pct: '10%' },
+            ];
+            const ringRadius = 32;
+            return (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {/* Main orbital ring of fraction-percentage pairs */}
+                {fractions.map((f, i) => {
+                  const angle = (i / fractions.length) * 2 * Math.PI - Math.PI / 2;
+                  const x = 50 + ringRadius * Math.cos(angle);
+                  const y = 45 + ringRadius * Math.sin(angle);
+                  return (
+                    <div
+                      key={i}
+                      className="absolute flex flex-col items-center"
+                      style={{
+                        left: `${x}%`,
+                        top: `${y}%`,
+                        transform: 'translate(-50%,-50%)',
+                        color: decoColor,
+                        opacity: dp(0.35, 0.08),
+                      }}
+                    >
+                      <span className="text-[18px] font-bold leading-tight">{f.frac}</span>
+                      <span className="text-[14px] font-mono font-bold leading-tight">= {f.pct}</span>
+                    </div>
+                  );
+                })}
+                {/* Center formula: actual value / total value × 100 */}
+                <div
+                  className="absolute flex flex-col items-center justify-center"
+                  style={{
+                    left: '50%',
+                    top: '45%',
+                    transform: 'translate(-50%,-50%)',
+                    color: decoColor,
+                    opacity: dp(0.25, 0.06),
+                    fontFamily: "'JetBrains Mono', monospace",
+                  }}
+                >
+                  <span className="text-[10px] font-bold whitespace-nowrap">actual value</span>
+                  <div className="w-12 h-px my-0.5" style={{ backgroundColor: decoColor }} />
+                  <span className="text-[10px] font-bold whitespace-nowrap">total value</span>
+                  <span className="text-[9px] font-bold mt-1">× 100</span>
+                </div>
+                {/* Inner ring — smaller duplicate of fraction pairs */}
+                {fractions.slice(0, 6).map((f, i) => {
+                  const angle = (i / 6) * 2 * Math.PI + Math.PI / 3;
+                  const x = 50 + 18 * Math.cos(angle);
+                  const y = 45 + 18 * Math.sin(angle);
+                  return (
+                    <div
+                      key={`inner-${i}`}
+                      className="absolute flex flex-col items-center"
+                      style={{
+                        left: `${x}%`,
+                        top: `${y}%`,
+                        transform: 'translate(-50%,-50%)',
+                        color: decoColor,
+                        opacity: dp(0.2, 0.04),
+                      }}
+                    >
+                      <span className="text-[11px] font-bold leading-tight">{f.frac}</span>
+                      <span className="text-[9px] font-mono font-bold leading-tight">{f.pct}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }
+          case 'formula-flow': {
+            const formulas = [
+              '∑ (x - x̄)² / n',
+              'P × R × T / 100',
+              'A = P(1 + r/100)ⁿ',
+              'actual value / total × 100',
+              'C.P. = S.P. × 100 / (100 + P%)',
+              'SI = (P × R × T) / 100',
+              '∆ = b² - 4ac',
+              'd = √((x₂-x₁)² + (y₂-y₁)²)',
+            ];
+            return (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {formulas.map((f, i) => {
+                  const row = Math.floor(i / 2);
+                  const col = i % 2;
+                  const x = 15 + col * 55;
+                  const y = 15 + row * 18;
+                  return (
+                    <div
+                      key={i}
+                      className="absolute whitespace-nowrap"
+                      style={{
+                        left: `${x}%`,
+                        top: `${y}%`,
+                        color: decoColor,
+                        opacity: dp(0.12, 0.035),
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: '9px',
+                        transform: `rotate(${(i % 3 - 1) * 3}deg)`,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {f}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }
           default: return null;
         }
       })()}
