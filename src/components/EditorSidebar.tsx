@@ -566,6 +566,51 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     </button>
                   )}
                 </div>
+
+                {/* Detach Background Box — converts the text's background into a separate movable canvas box */}
+                {currentBg !== undefined && currentBg !== 'none' && (
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const el = document.getElementById(`editable-${section}-${field}`);
+                        if (!el) return;
+                        const container = el.closest('[style*="aspect-ratio: 210 / 297"]');
+                        if (!container) return;
+                        const elRect = el.getBoundingClientRect();
+                        const containerRect = container.getBoundingClientRect();
+                        const relX = Math.round(elRect.left - containerRect.left);
+                        const relY = Math.round(elRect.top - containerRect.top);
+                        const w = Math.round(elRect.width);
+                        const h = Math.round(elRect.height);
+                        const bgVal = currentBg;
+                        // Clear background from original element
+                        if (activeDup) {
+                          onUpdateDuplicateStyle(activeDup.id, 'customBackground', 'none');
+                        } else {
+                          const bgs = { ...(state.customBackgrounds || {}) };
+                          delete bgs[elementId];
+                          onUpdateText('global', 'customBackgrounds', bgs);
+                        }
+                        // Create a new canvas box at the element's exact position
+                        onAddCanvasElement?.('box', {
+                          page: state.currentPage,
+                          x: relX,
+                          y: relY,
+                          width: w,
+                          height: h,
+                          backgroundColor: bgVal,
+                          borderRadius: 4,
+                          zIndex: 5,
+                        });
+                      }}
+                      className="w-full py-1.5 px-3 text-[10px] font-mono rounded-lg border border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white hover:border-[#ccff00] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <span>✂️</span> Detach Background Box
+                    </button>
+                    <p className="text-[8px] text-zinc-500 mt-1 leading-tight">Creates a separate box element with this background. Now you can move text &amp; background independently!</p>
+                  </div>
+                )}
               </div>
             );
           })()}
