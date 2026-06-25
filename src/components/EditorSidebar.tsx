@@ -2483,7 +2483,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
             {/* Category filter chips */}
             <div className="flex flex-wrap gap-1.5">
-              {['all', ...TEMPLATE_CATEGORIES].map((cat) => (
+              {['all', ...TEMPLATE_CATEGORIES.map(c => c.id)].map((cat) => (
                 <button
                   key={cat}
                   type="button"
@@ -2496,7 +2496,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                         : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:border-slate-300'
                   }`}
                 >
-                  {cat === 'all' ? 'All' : cat}
+                  {cat === 'all' ? 'All' : (TEMPLATE_CATEGORIES.find(c => c.id === cat)?.label || cat)}
                 </button>
               ))}
             </div>
@@ -2517,9 +2517,9 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                   >
                     {/* Template thumbnail */}
                     <div className="h-20 flex items-center justify-center overflow-hidden" style={{
-                      background: tpl.previewGradient || 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
+                      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
                     }}>
-                      <span className="text-xl font-bold opacity-30 select-none" style={{ color: tpl.theme === 'neon-green' ? '#ccff00' : tpl.theme === 'midnight-purple' ? '#a78bfa' : tpl.theme === 'gold-navy' ? '#fbbf24' : '#fff' }}>
+                      <span className="text-xl font-bold opacity-30 select-none" style={{ color: tpl.state.currentTheme === 'neon-lime' ? '#ccff00' : tpl.state.currentTheme === 'midnight-space' ? '#a78bfa' : tpl.state.currentTheme === 'professional-navy' ? '#fbbf24' : '#fff' }}>
                         {tpl.name.split(' ').map(w => w[0]).join('').slice(0, 3)}
                       </span>
                     </div>
@@ -2532,12 +2532,12 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                         <span className={`px-1.5 py-0.5 rounded text-[7px] font-mono uppercase tracking-wider ${
                           isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-slate-100 text-slate-500'
                         }`}>
-                          {tpl.pageType}
+                          {tpl.state.currentPage}
                         </span>
                         <span className={`px-1.5 py-0.5 rounded text-[7px] font-mono uppercase tracking-wider ${
                           isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-slate-100 text-slate-500'
                         }`}>
-                          {tpl.theme}
+                          {tpl.state.currentTheme}
                         </span>
                       </div>
                     </div>
