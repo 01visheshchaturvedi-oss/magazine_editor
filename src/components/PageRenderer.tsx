@@ -485,38 +485,43 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
 
         {/* Resize handles — include sides (N/S/E/W) too */}
         {isSelected && ['nw','n','ne','e','se','s','sw','w'].map((corner) => {
-
-          const invScale = 1 / (transform.scale || 1);
-          const hitSize = 24;
+          const sz = 24;
           const visSize = 12;
-          const offset = -(hitSize / 2);
+          const off = -(sz / 2);
+          const invScale = 1 / (transform.scale || 1);
+          function getHandleStyle(dir: string): React.CSSProperties {
+            const base: React.CSSProperties = {
+              position: 'absolute',
+              width: sz,
+              height: sz,
+              transform: `scale(${invScale})`,
+              transformOrigin: 'center',
+              zIndex: 50,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            };
+            if (dir.includes('n')) base.top = off;
+            if (dir.includes('s')) base.bottom = off;
+            if (dir === 'n' || dir === 's') { base.left = '50%'; base.marginLeft = -(sz/2); }
+            if (dir === 'w') { base.left = off; base.top = '50%'; base.marginTop = -(sz/2); }
+            if (dir === 'e') { base.right = off; base.top = '50%'; base.marginTop = -(sz/2); }
+            if (dir === 'nw') base.left = off;
+            if (dir === 'ne') base.right = off;
+            if (dir === 'sw') base.left = off;
+            if (dir === 'se') base.right = off;
+            return base;
+          }
           return (
             <div
               key={corner}
-              onMouseDown={(e) => handleResizeStart(e, corner as 'nw'|'ne'|'se'|'sw')}
-              onTouchStart={(e) => handleResizeStart(e, corner as 'nw'|'ne'|'se'|'sw')}
-              style={{
-                position: 'absolute',
-                width: hitSize,
-                height: hitSize,
-                transform: `scale(${invScale})`,
-                transformOrigin: 'center',
-                [corner.includes('n') ? 'top' : 'bottom']: offset,
-                [corner.includes('w') ? 'left' : 'right']: offset,
-                cursor: `${corner}-resize`,
-                zIndex: 50,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              onMouseDown={(e) => handleResizeStart(e, corner as 'nw'|'n'|'ne'|'e'|'se'|'s'|'sw'|'w')}
+              onTouchStart={(e) => handleResizeStart(e, corner as 'nw'|'n'|'ne'|'e'|'se'|'s'|'sw'|'w')}
+              style={{...getHandleStyle(corner), cursor: `${corner}-resize`}}
               className="pointer-events-auto"
             >
               <div
-                style={{
-                  width: visSize,
-                  height: visSize,
-                  pointerEvents: 'none',
-                }}
+                style={{ width: visSize, height: visSize, pointerEvents: 'none' }}
                 className="bg-[#ccff00] border-2 border-zinc-900 rounded-sm shadow-md"
               />
             </div>
