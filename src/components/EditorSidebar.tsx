@@ -142,6 +142,13 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     }
   }, [activeElement]);
 
+  // Auto-switch to the Layer tab when a canvas element is selected
+  useEffect(() => {
+    if (selectedCanvasId) {
+      setActiveTab('editor');
+    }
+  }, [selectedCanvasId]);
+
   // Image Upload handler translates local file to client-side dataURI
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

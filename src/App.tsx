@@ -196,6 +196,7 @@ export default function App() {
     setState((prev) => ({ ...prev, currentPage: page }));
     // Clear active selection focus when resetting page to avoid mis-mappings
     setActiveElement(null);
+    setSelectedCanvasId(null);
   };
 
   const handleResetData = () => {
@@ -848,6 +849,7 @@ export default function App() {
           onUpdateTransform={handleUpdateTransform}
           onSelectElement={(sec, fld, lbl, dupId) => {
             setActiveElement({ section: sec, field: fld, label: lbl, duplicatedId: dupId });
+            setSelectedCanvasId(null);
           }}
           onToggleHideElement={handleToggleHideElement}
           onDuplicateElement={handleDuplicateElement}
@@ -862,7 +864,10 @@ export default function App() {
           onUpdateCanvasElement={handleUpdateCanvasElement}
           onRemoveCanvasElement={handleRemoveCanvasElement}
           selectedCanvasId={selectedCanvasId}
-          onSelectCanvas={setSelectedCanvasId}
+          onSelectCanvas={(id) => {
+            setSelectedCanvasId(id);
+            setActiveElement(null);
+          }}
           onRemoveElementCopy={handleRemoveElementCopy}
           onImportHtml={handleImportHtml}
           onSaveDesign={handleSaveDesign}
