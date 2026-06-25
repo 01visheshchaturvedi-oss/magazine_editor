@@ -5,7 +5,7 @@ import { INITIAL_STATE, COMPILATION_THEMES } from './data';
 import { PageRenderer } from './components/PageRenderer';
 import { EditorSidebar } from './components/EditorSidebar';
 import { generateStandaloneHtml } from './utils/exporter';
-import { extractElementsFromHtml } from './utils/htmlImporter';
+import { extractElementsFromHtml, extractThemeColorsFromHtml } from './utils/htmlImporter';
 import { 
   Printer, 
   HelpCircle, 
@@ -63,6 +63,10 @@ export default function App() {
   const [extractedElements, setExtractedElements] = useState<ExtractedElement[]>([]);
   const [importedThemeFileName, setImportedThemeFileName] = useState<string>('');
 
+  // ── Imported HTML Theme Colors ─────────────────────────────────────
+  const [importedThemeColors, setImportedThemeColors] = useState<{ background: string; textPrimary: string; primary: string; name: string } | null>(null);
+  const [showImportedTheme, setShowImportedTheme] = useState(false);
+
   const [savedElements, setSavedElements] = useState<SavedImportedElement[]>(() => {
     try {
       const saved = localStorage.getItem('educover_saved_elements');
@@ -97,6 +101,9 @@ export default function App() {
         const html = reader.result as string;
         const elements = extractElementsFromHtml(html);
         setExtractedElements(elements);
+        // Also extract theme colors from the HTML
+        const colors = extractThemeColorsFromHtml(html);
+        setImportedThemeColors(colors);
         if (elements.length === 0) {
           alert('Could not extract any meaningful elements from this HTML file. Try a different file.');
         }
@@ -112,6 +119,29 @@ export default function App() {
   const handleClearExtractedElements = () => {
     setExtractedElements([]);
     setImportedThemeFileName('');
+    setImportedThemeColors(null);
+    setShowImportedTheme(false);
+  };
+
+  const handleToggleImportedTheme = (enabled: boolean) => {
+    setShowImportedTheme(enabled);
+    if (enabled && importedThemeColors) {
+      // Apply imported theme colors as custom overrides
+      setState((prev) => ({
+        ...prev,
+        customPrimaryColor: importedThemeColors.primary,
+        customBackgroundColor: importedThemeColors.background,
+        customTextColor: importedThemeColors.textPrimary,
+      }));
+    } else {
+      // Remove custom overrides to show current built-in theme
+      setState((prev) => ({
+        ...prev,
+        customPrimaryColor: undefined,
+        customBackgroundColor: undefined,
+        customTextColor: undefined,
+      }));
+    }
   };
 
   const handleSaveExtractedElement = (el: ExtractedElement) => {
@@ -144,8 +174,8 @@ export default function App() {
       type: 'text',
       x: 60 + count * 20,
       y: 60 + count * 20,
-      width: 300,
-      height: 150,
+      width: 500,
+      height: 300,
       rotation: 0,
       scale: 1,
       content: styledHtml,
@@ -1113,6 +1143,9 @@ return (prev.coverData as any)[field] || '';
            savedElements={savedElements}
            onDeleteSavedElement={handleDeleteSavedElement}
            onPlaceSavedElement={handlePlaceSavedElement}
+           importedThemeColors={importedThemeColors}
+           showImportedTheme={showImportedTheme}
+           onToggleImportedTheme={handleToggleImportedTheme}
           />
 
         {/* Hidden file input for importing theme HTML */}

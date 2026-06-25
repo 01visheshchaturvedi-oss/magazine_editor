@@ -81,6 +81,10 @@ interface EditorSidebarProps {
   savedElements?: SavedImportedElement[];
   onDeleteSavedElement?: (id: string) => void;
   onPlaceSavedElement?: (el: SavedImportedElement) => void;
+  // Imported Theme Colors (for Design tab toggle)
+  importedThemeColors?: { background: string; textPrimary: string; primary: string; name: string } | null;
+  showImportedTheme?: boolean;
+  onToggleImportedTheme?: (enabled: boolean) => void;
 }
 
 export const EditorSidebar: React.FC<EditorSidebarProps> = ({
@@ -134,7 +138,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   onSaveExtractedElement,
   savedElements,
   onDeleteSavedElement,
-  onPlaceSavedElement
+  onPlaceSavedElement,
+  importedThemeColors,
+  showImportedTheme,
+  onToggleImportedTheme
 }) => {
   const [designName, setDesignName] = useState('');
   const [templateCategory, setTemplateCategory] = useState<string>('all');
@@ -1816,6 +1823,65 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                 );
               })()}
             </div>
+
+            {/* Imported HTML Theme Toggle — switch between current theme and imported HTML theme colors */}
+            {importedThemeColors && (
+              <div className={`${s.panelSolid} p-4 space-y-3`}>
+                <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b ${s.divider} ${s.textPrimary}`}>
+                  <span>🎨 Imported Theme</span>
+                </span>
+
+                <div className="space-y-2">
+                  <div className={`rounded-lg p-3 border ${isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-slate-50 border-slate-200'}`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-4 h-4 rounded-full border" style={{ backgroundColor: importedThemeColors.primary }} />
+                      <div className="w-4 h-4 rounded-full border" style={{ backgroundColor: importedThemeColors.background }} />
+                      <div className="w-4 h-4 rounded-full border" style={{ backgroundColor: importedThemeColors.textPrimary }} />
+                      <span className={`text-[11px] font-mono truncate ${s.textMuted}`}>{importedThemeColors.name}</span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1.5 text-[9px] font-mono">
+                      <div className="px-1.5 py-1 rounded border" style={{ backgroundColor: importedThemeColors.background, color: importedThemeColors.textPrimary, borderColor: isDark ? '#333' : '#ccc' }}>
+                        bg
+                      </div>
+                      <div className="px-1.5 py-1 rounded border" style={{ backgroundColor: importedThemeColors.primary, color: importedThemeColors.background, borderColor: 'transparent' }}>
+                        accent
+                      </div>
+                      <div className="px-1.5 py-1 rounded border" style={{ color: importedThemeColors.textPrimary, borderColor: importedThemeColors.textPrimary }}>
+                        text
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Toggle switch */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-mono text-zinc-400">Apply imported theme colors</span>
+                    <button
+                      type="button"
+                      onClick={() => onToggleImportedTheme?.(!showImportedTheme)}
+                      className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer ${
+                        showImportedTheme ? 'bg-[#ccff00]' : isDark ? 'bg-zinc-700' : 'bg-slate-300'
+                      }`}
+                      role="switch"
+                      aria-checked={showImportedTheme}
+                      aria-label="Toggle imported theme"
+                    >
+                      <span
+                        className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
+                          showImportedTheme ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {showImportedTheme && (
+                    <p className="text-[9px] text-emerald-500 font-mono">
+                      ✓ Imported theme colors are now applied (background, text &amp; accent)
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Background Effects — multi-layer theme compositing with blur */}
             <div className={`${s.panelSolid} p-4 space-y-3`}>

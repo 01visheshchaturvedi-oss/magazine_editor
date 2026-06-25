@@ -173,3 +173,83 @@ export function extractElementsFromHtml(html: string): ExtractedElement[] {
 export function serializeExtractedElement(el: ExtractedElement): string {
   return `<!-- Extracted: ${el.textPreview} -->\n<style>\n${el.css}\n</style>\n${el.html}`;
 }
+
+/**
+ * Extract likely theme colors (background, text, primary/accent) from an HTML string.
+ * Uses simple heuristics: looks at body styles, style tags, and prominent inline colors.
+ */
+export function extractThemeColorsFromHtml(html: string): { background: string; textPrimary: string; primary: string; name: string } {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const body = doc.body;
+
+  // Default fallbacks
+  let background = '#ffffff';
+  let textPrimary = '#000000';
+  let primary = '#0066cc';
+
+  if (!body) return { background, textPrimary, primary, name: 'Imported Theme' };
+
+  // 1. Collect all CSS text from <style> tags
+  const allCss = Array.from(doc.querySelectorAll('style')).map(s => s.textContent || '').join('\n');
+
+  // 2. Check body's inline style for background-color/color
+  const bodyStyle = body.getAttribute('style') || '';
+  const bgMatch = bodyStyle.match(/background(?:-color)?\s*:\s*([^;]+)/i);
+  if (bgMatch) background = bgMatch[1].trim();
+  const textMatch = bodyStyle.match(/color\s*:\s*([^;]+)/i);
+  if (textMatch) textPrimary = textMatch[1].trim();
+
+  // 3. Check CSS for body/HTML background-color
+  const bodyBgCss = allCss.match(/body\s*\{[^}]*background(?:-color)?\s*:\s*([^;}]+)/i);
+  if (bodyBgCss) background = bodyBgCss[1].trim();
+  const bodyTextCss = allCss.match(/body\s*\{[^}]*color\s*:\s*([^;}]+)/i);
+  if (bodyTextCss) textPrimary = bodyTextCss[1].trim();
+
+  // 4. Extract a primary/accent color: look for the most saturated color used in the document
+  const colorMap = new Map<string, number>();
+  
+  // Check all elements for inline styles with color or background-color
+  const allElements = body.querySelectorAll('*');
+  allElements.forEach(el => {
+    const style = (el as HTMLElement).style;
+    if (style.color && style.color !== textPrimary && style.color !== '#000' && style.color !== '#000000') {
+      const c = style.color.toLowerCase();
+      colorMap.set(c, (colorMap.get(c) || 0) + 1);
+    }
+    if (style.backgroundColor && style.backgroundColor !== 'transparent' && style.backgroundColor !== background) {
+      const c = style.backgroundColor.toLowerCase();
+      colorMap.set(c, (colorMap.get(c) || 0) + 2);
+    }
+  });
+
+  // Also look at class-based CSS for color usage
+  const colorProps = allCss.matchAll(/(?:color|background(?:-color)?)\s*:\s*([^;{}]+)/gi);
+  for (const match of colorProps) {
+    const c = match[1].trim().toLowerCase();
+    if (c !== textPrimary && c !== background && c !== '#fff' && c !== '#ffffff' && c !== '#000' && c !== '#000000') {
+      colorMap.set(c, (colorMap.get(c) || 0) + 1);
+    }
+  }
+
+  // Promote any non-grayscale color that appears frequently as the primary
+  let bestScore = 0;
+  colorMap.forEach((count, color) => {
+    // Skip grayscale colors
+    if (/^(rgb\(\s*(\d+)\s*,\s*\2\s*,\s*\2\)|#[0-9a-f]{3}$|#[0-9a-f]{6}$)/i.test(color)) {
+      // Could be a named gray like 'gray', 'silver', etc.
+      if (['gray','grey','silver','lightgray','darkgray','gainsboro','whitesmoke'].includes(color)) return;
+    }
+    // Skip very dark or very light
+    if (count > bestScore) {
+      bestScore = count;
+      primary = color;
+    }
+  });
+
+  // Extract a name from the title or use default
+  const title = doc.querySelector('title');
+  const name = title ? `Imported: ${title.textContent?.trim().slice(0, 30) || 'Theme'}` : 'Imported Theme';
+
+  return { background, textPrimary, primary, name };
+}

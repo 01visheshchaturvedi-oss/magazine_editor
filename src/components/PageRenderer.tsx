@@ -734,6 +734,10 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
             ...(el.clipTop != null || el.clipRight != null || el.clipBottom != null || el.clipLeft != null
               ? { clipPath: `inset(${el.clipTop ?? 0}px ${el.clipRight ?? 0}px ${el.clipBottom ?? 0}px ${el.clipLeft ?? 0}px)` }
               : {}),
+            // Override for HTML-rendered elements: block layout so HTML flows naturally from top-left
+            ...(el.type === 'text' && (el.renderAsHtml || /<[a-z][\s\S]*>/i.test(el.content || ''))
+              ? { display: 'block', overflow: 'auto', alignItems: 'normal' as const, justifyContent: 'normal' as const }
+              : {}),
           }}
           className={`rounded transition-shadow ${isSelected ? 'ring-2 ring-[#ccff00]' : 'hover:ring-1 hover:ring-[#ccff00]/50'}`}
         >
@@ -777,10 +781,9 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
             >
               {el.content || '∑'}
             </span>
-          ) : el.type === 'text' && el.renderAsHtml ? (
-            <span
-              onDoubleClick={(e) => { e.stopPropagation(); setEditingCanvasId(el.id); }}
-              style={{ pointerEvents: isSelected ? 'auto' : 'none', width: '100%', height: '100%', overflow: 'auto', fontSize: 12, textAlign: 'left', lineHeight: 1.5 }}
+          ) : el.type === 'text' && (el.renderAsHtml || /<[a-z][\s\S]*>/i.test(el.content || '')) ? (
+            <div
+              style={{ pointerEvents: isSelected ? 'auto' : 'none', width: '100%', height: '100%', overflow: 'auto', textAlign: 'left', lineHeight: 1.5 }}
               dangerouslySetInnerHTML={{ __html: el.content || '' }}
             />
           ) : el.type === 'text' ? (
