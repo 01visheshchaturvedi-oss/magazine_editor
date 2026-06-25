@@ -188,7 +188,7 @@ export function generateStandaloneHtml(state: AppState): string {
 
         <!-- Main centered cover content -->
         <div class="z-20 my-auto text-center relative flex flex-col items-center">
-          <h1 class="text-5xl md:text-6xl text-center leading-none tracking-tighter drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] filter font-extrabold uppercase" style="${getStyleForField('cover', 'mainTitle', 'block')} color: ${colors.primary};">
+          <h1 class="text-5xl md:text-6xl text-center leading-none tracking-tighter font-extrabold uppercase" style="${getStyleForField('cover', 'mainTitle', 'block')} color: ${colors.primary};">
             ${coverData.mainTitle}
           </h1>
           <span class="mt-3.5 inline-block text-xs uppercase font-extrabold tracking-widest bg-zinc-900 text-white rounded px-4 py-1.5 border border-zinc-700 shadow-lg" style="${getStyleForField('cover', 'subTitle')}">

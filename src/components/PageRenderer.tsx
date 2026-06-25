@@ -1163,7 +1163,7 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
             const stars = Array.from({ length: isLight ? 35 : 50 }, (_, i) => {
               const x = ((seed * (i + 1) * 7) % 100);
               const y = ((seed * (i + 1) * 13 + 37) % 100);
-              const size = 1 + ((seed * (i + 1) * 3) % 4);
+              const size = 3 + ((seed * (i + 1) * 5) % 10);
               const delay = ((seed * (i + 1)) % 5);
               return { x, y, size, delay };
             });
@@ -1335,7 +1335,7 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
           <div className="z-20 my-auto text-center relative flex flex-col items-center">
             <EditableText section="cover" field="mainTitle" label="Main Magazine Title" className="w-full">
               <h1 
-                className={`${colors.fontFamilyHead} text-5xl md:text-6xl text-center leading-none tracking-tighter drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] filter`}
+                className={`${colors.fontFamilyHead} text-5xl md:text-6xl text-center leading-none tracking-tighter`}
                 style={{ color: colors.primary, ...fonts.headStyle }}
               >
                 {coverData.mainTitle}
