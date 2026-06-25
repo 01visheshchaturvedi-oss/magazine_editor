@@ -1590,6 +1590,100 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
               </div>
             </div>
 
+            {/* 🔽 Global Layer Select Dropdown (bulk items) */}
+            <div className={`space-y-2.5 ${s.panelSolid} p-4`}> 
+              <label className={`flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider ${s.textPrimary}`}>
+                <ChevronRight size={13} className={isDark ? 'text-[#ccff00]' : 'text-emerald-600'} />
+                <span>Select Magazine Layer (Dropdown)</span>
+              </label>
+
+              <select
+                value={''}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  if (!raw) return;
+
+                  // Encoded formats:
+                  // - raw::<page>::<field>
+                  // - dup::<dupId>
+                  // - canvas::<canvasId>
+                  if (raw.startsWith('canvas::')) {
+                    const id = raw.slice('canvas::'.length);
+                    onSelectCanvas(id);
+                    return;
+                  }
+
+                  if (raw.startsWith('dup::')) {
+                    const dupId = raw.slice('dup::'.length);
+                    const dup = (state.duplicatedElements || []).find(d => d.id === dupId);
+                    if (!dup) return;
+                    onSelectElement(dup.section, dup.field, dup.label, dup.id);
+                    return;
+                  }
+
+                  if (raw.startsWith('raw::')) {
+                    const payload = raw.slice('raw::'.length);
+                    const parts = payload.split('::');
+                    const page = parts[0];
+                    const field = parts[1];
+                    const layers = getPageLayers(state.currentPage);
+                    const layer = layers.find(l => l.field === field);
+                    const label = layer?.label || field;
+                    onSelectElement(page, field, label);
+                    return;
+                  }
+                }}
+                className={`w-full rounded-lg border p-2 text-[11px] font-mono focus:outline-none cursor-pointer ${
+                  isDark ? 'bg-zinc-950 text-white border-zinc-800 focus:ring-1 focus:ring-[#ccff00]' : 'bg-white text-slate-900 border-slate-200 focus:ring-1 focus:ring-emerald-500'
+                }`}
+              >
+                <option value="" disabled>
+                  Choose: page + duplicates + canvas items
+                </option>
+
+                {/* Raw page fields */}
+                {getPageLayers(state.currentPage).map((layer) => {
+                  const elementId = `${state.currentPage}.${layer.field}`;
+                  const isHidden = !!(state.hiddenElements || {})[elementId];
+                  return (
+                    <option
+                      key={`raw-${layer.field}`}
+                      value={`raw::${state.currentPage}::${layer.field}`}
+                    >
+                      {isHidden ? '🙈 ' : ''}{layer.label}
+                    </option>
+                  );
+                })}
+
+                {/* Duplicated elements */}
+                {(state.duplicatedElements || [])
+                  .filter(d => d.section === state.currentPage)
+                  .map((dup) => {
+                    const elementId = `${dup.section}.${dup.field}`;
+                    const isHidden = !!(state.hiddenElements || {})[elementId];
+                    return (
+                      <option key={`dup-${dup.id}`} value={`dup::${dup.id}`}>
+                        {isHidden ? '🙈 ' : ''}{dup.label} (duplicate)
+                      </option>
+                    );
+                  })}
+
+                {/* Canvas elements */}
+                {(state.canvasElements || [])
+                  .filter(el => el.page === state.currentPage)
+                  .map((el) => (
+                    <option key={`canvas-${el.id}`} value={`canvas::${el.id}`}>
+                      📌 {el.type.toUpperCase()}: {el.type === 'symbol' ? (el.content || '') : (el.content ? el.content.slice(0, 14) : '')}
+                    </option>
+                  ))}
+              </select>
+
+              <p className={`text-[10px] ${s.textMuted} leading-relaxed`}>
+                This dropdown includes: page layers + duplicate layers + your free-form canvas items.
+                Selecting a canvas item opens the “Layer” editor for it.
+              </p>
+            </div>
+
             {/* Dynamic Interactive Layer directory list */}
             {renderLayersList()}
           </div>
