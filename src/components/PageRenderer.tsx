@@ -1045,11 +1045,11 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
             case 'neon-lime':
               return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" /><div className="absolute top-20 right-0 w-96 h-96 bg-lime-400/10 rounded-full filter blur-[120px]" /><div className="absolute bottom-20 left-0 w-96 h-96 bg-zinc-800/20 rounded-full filter blur-[100px]" /></div>);
             case 'warm-ivory':
-              return (<div className="absolute inset-0"><div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#991b1b]/5 to-transparent" /><div className="absolute inset-0 bg-[radial-gradient(#991b1b08_1px,transparent_1px)] [background-size:16px_16px]" /><div className="absolute -top-20 -right-20 w-80 h-80 rounded-full border border-red-900/5" /><div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full border border-red-900/5" /></div>);
+              return (<div className="absolute inset-0"><div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#991b1b]/15 to-transparent" /><div className="absolute inset-0 bg-[radial-gradient(#991b1b20_1px,transparent_1px)] [background-size:16px_16px]" /><div className="absolute -top-20 -right-20 w-80 h-80 rounded-full border border-red-900/15" /><div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full border border-red-900/15" /></div>);
             case 'midnight-space':
               return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(6,182,212,0.15),transparent_50%)]" /><div className="absolute inset-0 bg-[linear-gradient(to_right,#0891b20a_1px,transparent_1px),linear-gradient(to_bottom,#0891b20a_1px,transparent_1px)] bg-[size:40px_40px]" /><div className="absolute top-1/3 left-10 w-2 h-2 bg-yellow-400 rounded-full animate-ping" /><div className="absolute top-1/4 right-24 w-1 h-1 bg-white rounded-full opacity-80" /><div className="absolute bottom-1/3 right-10 w-2 h-2 bg-cyan-400 rounded-full opacity-60" /></div>);
             case 'retro-teal':
-              return (<div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(#115e59 8%, transparent 8%)", backgroundSize: "12px 12px" }}><div className="absolute inset-0 bg-gradient-to-tr from-amber-500/5 via-teal-500/10 to-transparent" /></div>);
+              return (<div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(#115e59 15%, transparent 15%)", backgroundSize: "16px 16px" }}><div className="absolute inset-0 bg-gradient-to-tr from-amber-500/15 via-teal-500/20 to-transparent" /></div>);
             case 'royal-indigo':
               return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[linear-gradient(30deg,#1e1b4b_20%,#312e81_50%,#1e1b4b_80%)]" /><div className="absolute top-10 right-10 w-48 h-48 rounded-full border-4 border-amber-400/10" /><div className="absolute bottom-20 left-10 w-64 h-64 rounded-full border-2 border-amber-400/5" /></div>);
             case 'cyberpunk-sunset':
@@ -1061,17 +1061,17 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
             case 'electric-violet':
               return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,#8b5cf610_0%,transparent_50%)]" /><div className="absolute bottom-10 right-10 w-48 h-48 bg-[#ccff00]/8 rounded-full filter blur-[100px]" /></div>);
             case 'professional-navy':
-              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,#c9a84c08_0%,transparent_60%)]" /><div className="absolute inset-0 bg-[linear-gradient(to_right,#1e3a5f06_1px,transparent_1px)] bg-[size:32px_32px]" /><div className="absolute top-1/4 left-1/4 w-64 h-64 border border-[#c9a84c]/10 rounded-full" /><div className="absolute bottom-10 right-10 w-48 h-48 border border-[#c9a84c]/8 rounded-full" /></div>);
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,#c9a84c20_0%,transparent_60%)]" /><div className="absolute inset-0 bg-[linear-gradient(to_right,#1e3a5f18_1px,transparent_1px)] bg-[size:32px_32px]" /><div className="absolute top-1/4 left-1/4 w-64 h-64 border border-[#c9a84c]/25 rounded-full" /><div className="absolute bottom-10 right-10 w-48 h-48 border border-[#c9a84c]/20 rounded-full" /></div>);
             case 'sage-academy':
-              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,#2d6a4f08_0%,transparent_50%)]" /><div className="absolute inset-0 bg-[radial-gradient(#2d6a4f06_1px,transparent_1px)] [background-size:20px_20px]" /><div className="absolute top-10 right-10 w-32 h-32 bg-[#2d6a4f]/5 rounded-full blur-3xl" /><div className="absolute bottom-20 left-5 w-24 h-24 bg-[#2d6a4f]/5 rounded-full blur-2xl" /></div>);
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,#2d6a4f20_0%,transparent_50%)]" /><div className="absolute inset-0 bg-[radial-gradient(#2d6a4f18_1px,transparent_1px)] [background-size:20px_20px]" /><div className="absolute top-10 right-10 w-32 h-32 bg-[#2d6a4f]/15 rounded-full blur-3xl" /><div className="absolute bottom-20 left-5 w-24 h-24 bg-[#2d6a4f]/15 rounded-full blur-2xl" /></div>);
             case 'burgundy-classic':
-              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[linear-gradient(180deg,#80002008_0%,transparent_40%,#80002005_100%)]" /><div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#800020]/20 to-transparent" /><div className="absolute -top-10 -right-10 w-72 h-72 rounded-full border border-[#800020]/10" /><div className="absolute -bottom-10 -left-10 w-72 h-72 rounded-full border border-[#800020]/8" /></div>);
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[linear-gradient(180deg,#80002020_0%,transparent_40%,#80002015_100%)]" /><div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#800020]/35 to-transparent" /><div className="absolute -top-10 -right-10 w-72 h-72 rounded-full border border-[#800020]/25" /><div className="absolute -bottom-10 -left-10 w-72 h-72 rounded-full border border-[#800020]/20" /></div>);
             case 'steel-professional':
-              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[linear-gradient(to_right,#4682b406_1px,transparent_1px),linear-gradient(to_bottom,#4682b406_1px,transparent_1px)] bg-[size:20px_20px]" /><div className="absolute top-0 right-0 w-96 h-96 bg-[#4682b4]/5 rounded-full blur-[100px]" /><div className="absolute bottom-0 left-0 w-64 h-64 bg-[#4682b4]/3 rounded-full blur-[80px]" /></div>);
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[linear-gradient(to_right,#4682b418_1px,transparent_1px),linear-gradient(to_bottom,#4682b418_1px,transparent_1px)] bg-[size:20px_20px]" /><div className="absolute top-0 right-0 w-96 h-96 bg-[#4682b4]/15 rounded-full blur-[100px]" /><div className="absolute bottom-0 left-0 w-64 h-64 bg-[#4682b4]/12 rounded-full blur-[80px]" /></div>);
             case 'charcoal-amber':
               return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,#ff8c0006_0%,transparent_60%)]" /><div className="absolute inset-0 bg-[linear-gradient(45deg,#33415508_1px,transparent_1px)] bg-[size:24px_24px]" /><div className="absolute top-1/3 -left-10 w-48 h-48 bg-[#ff8c00]/5 rounded-full blur-[60px]" /><div className="absolute bottom-1/4 right-0 w-40 h-40 bg-[#ff8c00]/5 rounded-full blur-[50px]" /></div>);
             case 'ocean-clarity':
-              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#006d7706_0%,transparent_50%)]" /><div className="absolute inset-0 bg-[linear-gradient(to_right,#83c5be08_1px,transparent_1px),linear-gradient(to_bottom,#83c5be08_1px,transparent_1px)] bg-[size:28px_28px]" /><div className="absolute top-20 right-20 w-56 h-56 border border-[#006d77]/10 rounded-full" /><div className="absolute bottom-10 left-1/3 w-4 h-4 bg-[#006d77]/20 rounded-full" /><div className="absolute top-1/3 right-1/4 w-2 h-2 bg-[#83c5be]/30 rounded-full" /></div>);
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#006d7718_0%,transparent_50%)]" /><div className="absolute inset-0 bg-[linear-gradient(to_right,#83c5be20_1px,transparent_1px),linear-gradient(to_bottom,#83c5be20_1px,transparent_1px)] bg-[size:28px_28px]" /><div className="absolute top-20 right-20 w-56 h-56 border border-[#006d77]/25 rounded-full" /><div className="absolute bottom-10 left-1/3 w-4 h-4 bg-[#006d77]/35 rounded-full" /><div className="absolute top-1/3 right-1/4 w-2 h-2 bg-[#83c5be]/50 rounded-full" /></div>);
             default: return null;
           }
         };
@@ -1087,6 +1087,186 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
             ))}
           </div>
         );
+      })()}
+
+      {/* BACKGROUND DECORATION PATTERNS */}
+      {state.backgroundDecoration && state.backgroundDecoration !== 'none' && (() => {
+        const deco = state.backgroundDecoration;
+        const bg = colors.background || '#000000';
+        const hex = bg.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        const isLight = (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5;
+        const decoColor = state.decorationColor || (isLight ? (colors.textPrimary || '#111827') : (colors.accent || '#ccff00'));
+        const masterOpacity = (state.decorationOpacity ?? 100) / 100;
+        const dp = (light: number, dark: number) => (isLight ? light : dark) * masterOpacity;
+        switch (deco) {
+          case 'math-ring': {
+            const symbols = ['∑', 'π', '√', '∞', 'Δ', '∫', '∂', 'λ', 'Ω', '∈', 'θ', 'Φ', 'γ', 'ε', 'μ', 'σ'];
+            return (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {symbols.map((s, i) => {
+                  const angle = (i / symbols.length) * 2 * Math.PI;
+                  const cx = 50;
+                  const cy = 50;
+                  const r = 35;
+                  const x = cx + r * Math.cos(angle);
+                  const y = cy + r * Math.sin(angle);
+                  return (
+                    <div key={i} className="absolute text-[32px] font-bold"
+                         style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%,-50%)', color: decoColor, opacity: dp(0.15, 0.04) }}>
+                      {s}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }
+          case 'dot-grid': {
+            return (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden"
+                   style={{
+                     backgroundImage: `radial-gradient(circle, ${decoColor} 1px, transparent 1px)`,
+                     backgroundSize: '24px 24px',
+                     opacity: dp(0.4, 0.5)
+                   }} />
+            );
+          }
+          case 'wave-lines': {
+            return (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ opacity: dp(0.2, 0.08) }}>
+                <svg width="100%" height="100%" viewBox="0 0 400 600" preserveAspectRatio="none" className="absolute inset-0">
+                  {[0, 1, 2, 3, 4, 5].map(i => (
+                    <path key={i} d={`M 0 ${80 + i * 90} Q 100 ${40 + i * 90} 200 ${80 + i * 90} T 400 ${80 + i * 90}`}
+                      fill="none" stroke={decoColor} strokeWidth="1.5" opacity={0.6 - i * 0.08} />
+                  ))}
+                </svg>
+              </div>
+            );
+          }
+          case 'rings': {
+            return (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
+                <svg width="100%" height="100%" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid meet" className="absolute inset-0">
+                  {[40, 80, 120, 160, 200, 240].map((r, i) => (
+                    <circle key={i} cx="200" cy="300" r={r}
+                      fill="none" stroke={decoColor} strokeWidth={isLight ? 1.5 : 1}
+                      opacity={dp(0.15 + i * 0.04, 0.05 + i * 0.015)} />
+                  ))}
+                </svg>
+              </div>
+            );
+          }
+          case 'stars': {
+            const seed = 12345;
+            const stars = Array.from({ length: isLight ? 35 : 50 }, (_, i) => {
+              const x = ((seed * (i + 1) * 7) % 100);
+              const y = ((seed * (i + 1) * 13 + 37) % 100);
+              const size = 1 + ((seed * (i + 1) * 3) % 4);
+              const delay = ((seed * (i + 1)) % 5);
+              return { x, y, size, delay };
+            });
+            return (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {stars.map((star, i) => (
+                  <div key={i} className="absolute rounded-full"
+                       style={{
+                         left: `${star.x}%`, top: `${star.y}%`,
+                         width: star.size, height: star.size,
+                         backgroundColor: decoColor,
+                         opacity: dp(0.3 + (star.size / 10) * 0.15, 0.15 + (star.size / 10) * 0.1),
+                         animation: `pulse ${2 + star.delay}s ease-in-out infinite`,
+                         animationDelay: `${star.delay * 0.3}s`
+                       }} />
+                ))}
+              </div>
+            );
+          }
+          case 'hexagons': {
+            const rows = 8;
+            const cols = 6;
+            const hw = 50;
+            const hh = 43;
+            return (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ opacity: dp(0.2, 0.06) }}>
+                <svg width="100%" height="100%" viewBox="0 0 400 600" preserveAspectRatio="none" className="absolute inset-0">
+                  {Array.from({ length: rows }, (_, row) =>
+                    Array.from({ length: cols }, (_, col) => {
+                      const cx = col * hw * 0.75 + (row % 2) * hw * 0.375;
+                      const cy = row * hh * 0.5 + hh * 0.5;
+                      const pts = Array.from({ length: 6 }, (_, i) => {
+                        const a = (Math.PI / 3) * i - Math.PI / 6;
+                        return `${cx + hw * 0.35 * Math.cos(a)},${cy + hh * 0.35 * Math.sin(a)}`;
+                      }).join(' ');
+                      return <polygon key={`${row}-${col}`} points={pts} fill="none" stroke={decoColor} strokeWidth="1" />;
+                    })
+                  )}
+                </svg>
+              </div>
+            );
+          }
+          case 'crosshatch': {
+            return (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ opacity: dp(0.15, 0.05) }}>
+                <svg width="100%" height="100%" viewBox="0 0 400 600" preserveAspectRatio="none" className="absolute inset-0">
+                  {Array.from({ length: 20 }, (_, i) => (
+                    <line key={`a${i}`} x1={i * 28} y1={0} x2={i * 28 + 200} y2={600} stroke={decoColor} strokeWidth="0.5" />
+                  ))}
+                  {Array.from({ length: 20 }, (_, i) => (
+                    <line key={`b${i}`} x1={i * 28 + 200} y1={0} x2={i * 28} y2={600} stroke={decoColor} strokeWidth="0.5" />
+                  ))}
+                </svg>
+              </div>
+            );
+          }
+          case 'diagonal-lines': {
+            return (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ opacity: dp(0.12, 0.04) }}>
+                <svg width="100%" height="100%" viewBox="0 0 400 600" preserveAspectRatio="none" className="absolute inset-0">
+                  {Array.from({ length: 30 }, (_, i) => (
+                    <line key={i} x1={i * 20} y1={0} x2={i * 20 - 300} y2={600} stroke={decoColor} strokeWidth="0.8" />
+                  ))}
+                </svg>
+              </div>
+            );
+          }
+          case 'scattered-circles': {
+            const seed = 54321;
+            const circles = Array.from({ length: isLight ? 20 : 30 }, (_, i) => {
+              const x = ((seed * (i + 1) * 7) % 100);
+              const y = ((seed * (i + 1) * 13 + 17) % 100);
+              const radius = 10 + ((seed * (i + 1) * 3) % 40);
+              return { x, y, radius };
+            });
+            return (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ opacity: dp(0.25, 0.08) }}>
+                <svg width="100%" height="100%" viewBox="0 0 400 600" preserveAspectRatio="none" className="absolute inset-0">
+                  {circles.map((c, i) => (
+                    <circle key={i} cx={`${c.x}%`} cy={`${c.y}%`} r={c.radius}
+                      fill="none" stroke={decoColor} strokeWidth="1" />
+                  ))}
+                </svg>
+              </div>
+            );
+          }
+          case 'zigzag': {
+            return (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ opacity: dp(0.18, 0.06) }}>
+                <svg width="100%" height="100%" viewBox="0 0 400 600" preserveAspectRatio="none" className="absolute inset-0">
+                  {[0, 1, 2, 3, 4, 5].map(i => {
+                    const yBase = 80 + i * 90;
+                    return (
+                      <polyline key={i} points={`0,${yBase} 25,${yBase - 30} 50,${yBase} 75,${yBase + 30} 100,${yBase} 125,${yBase - 30} 150,${yBase} 175,${yBase + 30} 200,${yBase} 225,${yBase - 30} 250,${yBase} 275,${yBase + 30} 300,${yBase} 325,${yBase - 30} 350,${yBase} 375,${yBase + 30} 400,${yBase}`}
+                        fill="none" stroke={decoColor} strokeWidth="1" opacity={0.5 - i * 0.06} />
+                    );
+                  })}
+                </svg>
+              </div>
+            );
+          }
+          default: return null;
+        }
       })()}
 
       {/* 1. COVER PAGE VIEW */}

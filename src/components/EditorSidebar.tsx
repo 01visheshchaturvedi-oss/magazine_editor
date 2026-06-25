@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { AppState, ThemeId, PageType, CanvasElement, ElementShadowConfig, GradientConfig, gradientToCss, shadowToCss, BackgroundLayer, SYMBOLS } from '../types';
+import { AppState, ThemeId, PageType, CanvasElement, ElementShadowConfig, GradientConfig, gradientToCss, shadowToCss, BackgroundLayer, SYMBOLS, BackgroundDecorationId, BACKGROUND_DECORATIONS } from '../types';
 import { COMPILATION_THEMES } from '../data';
 import { 
   Paintbrush, 
@@ -67,6 +67,7 @@ interface EditorSidebarProps {
   onRemoveBackgroundLayer?: (index: number) => void;
   onUpdateBackgroundLayer?: (index: number, updates: Partial<BackgroundLayer>) => void;
   onSetBackgroundBlur?: (blur: number) => void;
+  onUpdateAppState?: (updates: Partial<AppState>) => void;
 }
 
 export const EditorSidebar: React.FC<EditorSidebarProps> = ({
@@ -110,7 +111,8 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   onAddBackgroundLayer,
   onRemoveBackgroundLayer,
   onUpdateBackgroundLayer,
-  onSetBackgroundBlur
+  onSetBackgroundBlur,
+  onUpdateAppState
 }) => {
   const [designName, setDesignName] = useState('');
   const isDark = appTheme === 'dark';
@@ -438,7 +440,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             };
 
             return (
-              <details open className="pt-1.5 pb-1 border-t border-zinc-805/50">
+              <details open={isBold || isItalic || isUnderline} className="pt-1.5 pb-1 border-t border-zinc-805/50">
                 <summary className="text-[9px] text-zinc-500 uppercase tracking-wider font-bold block mb-1.5 cursor-pointer list-none flex items-center justify-between">
                   <span>Text Style</span>
                   <span className="text-zinc-600 text-[10px]">+</span>
@@ -724,7 +726,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             };
 
             return (
-              <details open className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+              <details open={!!currentFont} className="pt-3.5 border-t border-zinc-805/50 space-y-2">
                 <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
                   <span>Font Face / Style Override</span>
                   <span className="text-zinc-600 text-[10px]">+</span>
@@ -785,7 +787,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             };
 
             return (
-              <details open className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+              <details open={currentAccentColor !== undefined} className="pt-3.5 border-t border-zinc-805/50 space-y-2">
                 <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
                   <span>Accent / Border Highlight Color</span>
                   <span className="text-zinc-600 text-[10px]">+</span>
@@ -858,7 +860,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             };
 
             return (
-              <details open className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+              <details open={currentGlowColor !== undefined} className="pt-3.5 border-t border-zinc-805/50 space-y-2">
                 <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
                   <span>Outer Glow</span>
                   <span className="text-zinc-600 text-[10px]">+</span>
@@ -951,7 +953,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             };
 
             return (
-              <details open className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+              <details open={isActive} className="pt-3.5 border-t border-zinc-805/50 space-y-2">
                 <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
                   <span>Shadow</span>
                   <span className="text-zinc-600 text-[10px]">+</span>
@@ -1117,7 +1119,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             ];
 
             return (
-              <details open className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+              <details open={isActive} className="pt-3.5 border-t border-zinc-805/50 space-y-2">
                 <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
                   <span>Gradient Text</span>
                   <span className="text-zinc-600 text-[10px]">+</span>
@@ -1634,18 +1636,6 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
               </div>
             </div>
 
-            {(state.customPrimaryColor || state.customBackgroundColor || state.customTextColor) && (
-              <button
-                type="button"
-                onClick={() => {
-                  onChangeTheme(state.currentTheme);
-                }}
-                className={`w-full py-2 text-[9px] border border-dashed rounded-lg font-mono transition-colors cursor-pointer ${isDark ? 'bg-amber-950/20 hover:bg-amber-900/30 border-amber-500/30 text-amber-400' : 'bg-amber-50 hover:bg-amber-100 border-amber-300/50 text-amber-700'}`}
-              >
-                Reset Theme to Default Colors
-              </button>
-            )}
-
             {/* Background Effects — multi-layer theme compositing with blur */}
             <div className={`${s.panelSolid} p-4 space-y-3`}>
               <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b ${s.divider} ${s.textPrimary}`}>
@@ -1771,6 +1761,68 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                   </button>
                 )}
               </div>
+
+              {/* Background Decoration */}
+              {state.backgroundDecoration && state.backgroundDecoration !== 'none' ? (
+                <div className="pt-2 border-t border-zinc-805/50 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] text-zinc-500 uppercase tracking-wider font-bold">Decoration</span>
+                    <button
+                      onClick={() => onUpdateAppState?.({ backgroundDecoration: undefined, decorationColor: undefined, decorationOpacity: undefined })}
+                      className="text-[9px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <select
+                    value={state.backgroundDecoration}
+                    onChange={(e) => onUpdateAppState?.({ backgroundDecoration: e.target.value as BackgroundDecorationId })}
+                    className="w-full px-2 py-1.5 text-[10px] font-mono rounded-lg border border-zinc-700 bg-zinc-900 text-zinc-300 focus:outline-none focus:ring-1 focus:ring-[#ccff00] cursor-pointer"
+                  >
+                    {BACKGROUND_DECORATIONS.filter(d => d.id !== 'none').map(d => (
+                      <option key={d.id} value={d.id}>{d.label}</option>
+                    ))}
+                  </select>
+                  {/* Decoration Color */}
+                  <div>
+                    <label className="text-[9px] font-mono text-zinc-400 block mb-1">Color Override (optional)</label>
+                    <div className="flex items-center gap-2">
+                      <input type="color" value={state.decorationColor || '#ccff00'} onChange={(e) => onUpdateAppState?.({ decorationColor: e.target.value })}
+                        className="w-10 h-8 rounded-lg cursor-pointer bg-transparent border-0 shrink-0" />
+                      {state.decorationColor && (
+                        <button
+                          onClick={() => onUpdateAppState?.({ decorationColor: undefined })}
+                          className="text-[9px] text-zinc-500 hover:text-white underline font-mono"
+                        >
+                          Reset
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {/* Decoration Opacity / Intensity */}
+                  <div>
+                    <label className="text-[9px] font-mono text-zinc-400 block mb-1">Intensity {(state.decorationOpacity ?? 100)}%</label>
+                    <input type="range" min={10} max={200} value={state.decorationOpacity ?? 100} onChange={(e) => onUpdateAppState?.({ decorationOpacity: parseInt(e.target.value) })}
+                      className="w-full accent-cyan-400 cursor-pointer" />
+                    <div className="flex justify-between text-[8px] text-zinc-600">
+                      <span>Subtle</span>
+                      <span>Bold</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="pt-2 border-t border-zinc-805/50">
+                  <button
+                    onClick={() => {
+                      const first = BACKGROUND_DECORATIONS.find(d => d.id !== 'none');
+                      onUpdateAppState?.({ backgroundDecoration: first?.id ?? 'none' });
+                    }}
+                    className="w-full py-1.5 px-3 text-[10px] font-mono rounded-lg border border-dashed border-zinc-700 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800 hover:text-white hover:border-[#ccff00] transition-all cursor-pointer"
+                  >
+                    + Add Decoration Pattern
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Typography and advanced fine-tuning overrides */}
@@ -2195,7 +2247,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                   <div className="flex items-center justify-between pb-1.5 border-b border-zinc-800">
                     <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 text-zinc-200">
                       <Square size={13} className="text-[#ccff00]" />
-                      <span>Canvas {canvasEl.type === 'text' ? 'Text' : 'Box'}</span>
+                      <span>Canvas {canvasEl.type === 'text' ? 'Text' : canvasEl.type === 'symbol' ? 'Symbol' : 'Box'}</span>
                     </span>
                     <button onClick={() => onSelectCanvas(null)} className="text-zinc-500 hover:text-white text-[10px] cursor-pointer">✕</button>
                   </div>
@@ -2266,10 +2318,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     </>
                   )}
 
-                  {canvasEl.type === 'text' && (
+                  {(canvasEl.type === 'text' || canvasEl.type === 'symbol') && (
                     <div>
                       <label className="text-[10px] font-mono text-zinc-400 block mb-1">Text Color</label>
-                      <input type="color" value={canvasEl.textColor || '#ffffff'} onChange={(e) => onUpdateCanvasElement?.(canvasEl.id, { textColor: e.target.value })}
+                      <input type="color" value={canvasEl.textColor || '#ccff00'} onChange={(e) => onUpdateCanvasElement?.(canvasEl.id, { textColor: e.target.value })}
                         className="w-full h-8 rounded-lg cursor-pointer bg-transparent border-0" />
                     </div>
                   )}
@@ -2320,11 +2372,11 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     </div>
                   </div>
 
-                  {canvasEl.type === 'text' && (
+                  {(canvasEl.type === 'text' || canvasEl.type === 'symbol') && (
                     <div className="space-y-2">
                       <div>
                         <label className="text-[10px] font-mono text-zinc-400 block mb-1">Font Size</label>
-                        <input type="range" min="8" max="72" value={canvasEl.fontSize ?? 16} onChange={(e) => onUpdateCanvasElement?.(canvasEl.id, { fontSize: parseInt(e.target.value) })}
+                        <input type="range" min="8" max="120" value={canvasEl.fontSize ?? 32} onChange={(e) => onUpdateCanvasElement?.(canvasEl.id, { fontSize: parseInt(e.target.value) })}
                           className="w-full accent-cyan-400" />
                       </div>
                       <div className="flex gap-2">

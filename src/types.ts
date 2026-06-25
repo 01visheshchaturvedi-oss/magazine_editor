@@ -263,5 +263,24 @@ export interface AppState {
   elementGradients?: Record<string, GradientConfig | undefined>;
   backgroundBlur?: number;
   backgroundLayers?: BackgroundLayer[];
+  backgroundDecoration?: BackgroundDecorationId;
+  decorationColor?: string;
+  decorationOpacity?: number;
 }
+
+export type BackgroundDecorationId = 'none' | 'math-ring' | 'dot-grid' | 'wave-lines' | 'rings' | 'stars' | 'hexagons' | 'crosshatch' | 'diagonal-lines' | 'scattered-circles' | 'zigzag';
+
+export const BACKGROUND_DECORATIONS: { id: BackgroundDecorationId; label: string; description: string }[] = [
+  { id: 'none', label: 'None', description: 'No background decoration' },
+  { id: 'math-ring', label: 'Math Symbols Ring', description: 'Floating math symbols arranged in a ring' },
+  { id: 'dot-grid', label: 'Dot Grid', description: 'A grid of subtle dots' },
+  { id: 'wave-lines', label: 'Wave Lines', description: 'Horizontal sine wave lines' },
+  { id: 'rings', label: 'Concentric Rings', description: 'Concentric geometric rings' },
+  { id: 'stars', label: 'Star Field', description: 'A field of twinkling stars' },
+  { id: 'hexagons', label: 'Hexagon Honeycomb', description: 'Honeycomb hexagonal grid pattern' },
+  { id: 'crosshatch', label: 'Crosshatch Grid', description: 'Cross-hatched diagonal lines' },
+  { id: 'diagonal-lines', label: 'Diagonal Stripes', description: 'Subtle diagonal striped pattern' },
+  { id: 'scattered-circles', label: 'Scattered Circles', description: 'Randomly placed circle outlines' },
+  { id: 'zigzag', label: 'Zigzag Waves', description: 'Sharp zigzag wave lines' },
+];
 

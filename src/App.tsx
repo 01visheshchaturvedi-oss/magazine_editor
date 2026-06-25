@@ -490,6 +490,10 @@ export default function App() {
     setState((prev) => ({ ...prev, backgroundBlur: blur }));
   };
 
+  const handleUpdateAppState = (updates: Partial<AppState>) => {
+    setState((prev) => ({ ...prev, ...updates }));
+  };
+
   // Canvas free-form element handlers
   const handleAddCanvasElement = (type: 'text' | 'box' | 'symbol', overrides?: Partial<CanvasElement>) => {
     setState((prev) => {
@@ -888,6 +892,25 @@ export default function App() {
             )}
           </button>
 
+          {(state.customPrimaryColor || state.customBackgroundColor || state.customTextColor) && (
+            <button
+              onClick={() => setState((prev) => ({
+                ...prev,
+                customPrimaryColor: undefined,
+                customBackgroundColor: undefined,
+                customTextColor: undefined,
+              }))}
+              className={`px-2.5 py-2 rounded-xl text-[9px] font-mono font-bold transition-all border cursor-pointer flex items-center gap-1.5 ${
+                isDark
+                  ? 'bg-amber-950/30 text-amber-400 border-amber-500/30 hover:bg-amber-900/40'
+                  : 'bg-amber-50 text-amber-700 border-amber-300/50 hover:bg-amber-100'
+              }`}
+              title="Reset to current theme's default colors"
+            >
+              <span>Reset Theme</span>
+            </button>
+          )}
+
           <button
             onClick={handleDownloadHtml}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer flex items-center gap-2 ${
@@ -915,7 +938,7 @@ export default function App() {
       </header>
 
       {/* CORE FRAMEWORK AREA: WORKSPACE */}
-      <div className={`flex-1 flex flex-col lg:flex-row overflow-hidden divide-y lg:divide-y-0 lg:divide-x transition-colors ${isDark ? 'divide-zinc-800' : 'divide-slate-200'}`}>
+      <div className={`flex-1 flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x transition-colors ${isDark ? 'divide-zinc-800' : 'divide-slate-200'}`}>
         
         {/* Left Side: Sidebar controls & customizations options */}
         <EditorSidebar
@@ -966,7 +989,8 @@ export default function App() {
            onRemoveBackgroundLayer={handleRemoveBackgroundLayer}
            onUpdateBackgroundLayer={handleUpdateBackgroundLayer}
            onSetBackgroundBlur={handleSetBackgroundBlur}
-         />
+           onUpdateAppState={handleUpdateAppState}
+          />
 
         {/* Hidden file input for importing designs */}
         <input
@@ -987,7 +1011,7 @@ export default function App() {
         />
 
         {/* Middle/Right Side: Live visual canvas screen preview */}
-        <main className={`flex-1 p-6 lg:p-12 flex flex-col items-center justify-center relative min-h-[500px] overflow-y-auto transition-colors ${isDark ? 'bg-zinc-950' : 'bg-slate-50'}`}>
+        <main className={`flex-1 p-6 lg:p-12 flex flex-col items-center justify-center relative min-h-[500px] transition-colors ${isDark ? 'bg-zinc-950' : 'bg-slate-50'}`}>
           
           {/* Guide Bar with Zoom Controls */}
           <div className={`w-full max-w-3xl mb-3 flex items-center justify-between text-[11px] px-3 py-2 rounded-xl border transition-colors ${
