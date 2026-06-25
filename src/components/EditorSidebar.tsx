@@ -57,6 +57,8 @@ interface EditorSidebarProps {
   onDeleteDesign: (name: string) => void;
   savedDesigns: string[];
   appTheme: 'light' | 'dark';
+  onExportElementStyle: () => void;
+  onImportElementStyle: () => void;
 }
 
 export const EditorSidebar: React.FC<EditorSidebarProps> = ({
@@ -90,7 +92,9 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   onLoadDesign,
   onDeleteDesign,
   savedDesigns,
-  appTheme
+  appTheme,
+  onExportElementStyle,
+  onImportElementStyle
 }) => {
   const [designName, setDesignName] = useState('');
   const isDark = appTheme === 'dark';
@@ -905,6 +909,28 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
               </div>
             );
           })()}
+
+          {/* Export/Import Style Preset buttons */}
+          <div className="pt-1 flex gap-2">
+            <button
+              type="button"
+              onClick={onExportElementStyle}
+              className="flex-1 py-2 px-2 border rounded-lg text-[9px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 bg-purple-950/20 hover:bg-purple-900/30 border-dashed border-purple-500/40 text-purple-400"
+              title="Export this element's style (background, colors, font, glow, position) as a .json preset file"
+            >
+              <ArrowUpRight size={11} />
+              <span>Export Style</span>
+            </button>
+            <button
+              type="button"
+              onClick={onImportElementStyle}
+              className="flex-1 py-2 px-2 border rounded-lg text-[9px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 bg-indigo-950/20 hover:bg-indigo-900/30 border-dashed border-indigo-500/40 text-indigo-400"
+              title="Import a .json style preset and apply it to this element"
+            >
+              <FolderOpen size={11} />
+              <span>Import Style</span>
+            </button>
+          </div>
 
           {/* Dynamic position and scale coordinates and slider overrides */}
           <div className="pt-3 border-t border-zinc-800 space-y-3.5">

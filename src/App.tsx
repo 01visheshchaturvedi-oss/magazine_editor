@@ -449,6 +449,8 @@ export default function App() {
 
   // File input ref for importing exported HTML
   const importFileRef = useRef<HTMLInputElement>(null);
+  // File input ref for importing element style presets
+  const elementStyleImportRef = useRef<HTMLInputElement>(null);
 
   // Import design from exported HTML file
   const handleImportHtml = () => {
@@ -510,6 +512,165 @@ export default function App() {
     delete designs[name];
     setSavedDesigns(designs);
     localStorage.setItem('educover_saved_designs', JSON.stringify(designs));
+  };
+
+  // Export the current active element's styling as a downloadable .json preset
+  const handleExportElementStyle = () => {
+    if (!activeElement) return;
+    const { section, field, duplicatedId } = activeElement;
+    const elementId = `${section}.${field}`;
+    
+    // For duplicated elements, read from the dup directly
+    const activeDup = duplicatedId ? (state.duplicatedElements || []).find((d) => d.id === duplicatedId) : null;
+    
+    const preset = {
+      version: 1,
+      name: `Style - ${activeElement.label}`,
+      elementStyles: {
+        customBackground: activeDup
+          ? activeDup.customBackground
+          : (state.customBackgrounds || {})[elementId],
+        customTextColor: activeDup
+          ? activeDup.customTextColor
+          : (state.customElementTextColors || {})[elementId],
+        customFont: activeDup
+          ? activeDup.customFont
+          : (state.customElementFonts || {})[elementId],
+        customAccent: activeDup
+          ? activeDup.customAccent
+          : (state.customElementAccents || {})[elementId],
+        customStyles: activeDup
+          ? (activeDup.customStyles || undefined)
+          : (state.customElementStyles || {})[elementId],
+        glowColor: activeDup ? undefined : (state.elementGlowColors || {})[elementId],
+        glowWidth: activeDup ? undefined : (state.elementGlowWidths || {})[elementId],
+        transform: activeDup
+          ? { ...activeDup.transform }
+          : field === '__photo__'
+            ? { x: state.photo.xOffset, y: state.photo.yOffset, scale: state.photo.scale, rotation: (state.transforms || {})[elementId]?.rotation ?? 0 }
+            : { ...((state.transforms || {})[elementId] || { x: 0, y: 0, scale: 1.0, rotation: 0 }) },
+      }
+    };
+
+    const blob = new Blob([JSON.stringify(preset, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `style-${elementId.replace(/[^a-zA-Z0-9]/g, '_')}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Import and apply an element style preset .json file to the current active element
+  const handleImportElementStyle = () => {
+    elementStyleImportRef.current?.click();
+  };
+
+  const handleImportElementStyleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const preset = JSON.parse(reader.result as string);
+        if (!preset.elementStyles) {
+          alert('Invalid style preset file. Could not find "elementStyles" key.');
+          return;
+        }
+        if (!activeElement) {
+          alert('Please select a layer/element first before importing a style preset.');
+          return;
+        }
+        const { section, field, duplicatedId } = activeElement;
+        const elementId = `${section}.${field}`;
+        const s = preset.elementStyles;
+
+        // Apply each style property if present in the preset
+        setState((prev) => {
+          let newState = { ...prev };
+
+          if (duplicatedId) {
+            // For duplicated elements, apply to the dup's properties
+            const dups = [...(prev.duplicatedElements || [])];
+            const idx = dups.findIndex((d) => d.id === duplicatedId);
+            if (idx !== -1) {
+              const dup = { ...dups[idx] };
+              if (s.customBackground !== undefined) dup.customBackground = s.customBackground;
+              if (s.customTextColor !== undefined) dup.customTextColor = s.customTextColor;
+              if (s.customFont !== undefined) dup.customFont = s.customFont;
+              if (s.customAccent !== undefined) dup.customAccent = s.customAccent;
+              if (s.customStyles !== undefined) dup.customStyles = { ...s.customStyles };
+              if (s.transform) {
+                dup.transform = { ...dup.transform, ...s.transform };
+              }
+              dups[idx] = dup;
+              newState = { ...newState, duplicatedElements: dups };
+            }
+          } else {
+            // For original elements
+            if (s.customBackground !== undefined) {
+              const bgs = { ...(prev.customBackgrounds || {}) };
+              bgs[elementId] = s.customBackground === 'none' ? 'none' : s.customBackground;
+              newState = { ...newState, customBackgrounds: bgs };
+            }
+            if (s.customTextColor !== undefined) {
+              const colorsMap = { ...(prev.customElementTextColors || {}) };
+              colorsMap[elementId] = s.customTextColor;
+              newState = { ...newState, customElementTextColors: colorsMap };
+            }
+            if (s.customFont !== undefined) {
+              const fontsMap = { ...(prev.customElementFonts || {}) };
+              if (s.customFont) fontsMap[elementId] = s.customFont;
+              newState = { ...newState, customElementFonts: fontsMap };
+            }
+            if (s.customAccent !== undefined) {
+              const accentsMap = { ...(prev.customElementAccents || {}) };
+              accentsMap[elementId] = s.customAccent;
+              newState = { ...newState, customElementAccents: accentsMap };
+            }
+            if (s.customStyles !== undefined) {
+              const allStyles = { ...(prev.customElementStyles || {}) };
+              allStyles[elementId] = { ...s.customStyles };
+              newState = { ...newState, customElementStyles: allStyles };
+            }
+            if (s.glowColor !== undefined) {
+              const glows = { ...(prev.elementGlowColors || {}) };
+              glows[elementId] = s.glowColor;
+              newState = { ...newState, elementGlowColors: glows };
+            }
+            if (s.glowWidth !== undefined) {
+              const widths = { ...(prev.elementGlowWidths || {}) };
+              widths[elementId] = s.glowWidth;
+              newState = { ...newState, elementGlowWidths: widths };
+            }
+            if (s.transform && field !== '__photo__') {
+              const transforms = { ...(prev.transforms || {}) };
+              const current = transforms[elementId] || { x: 0, y: 0, scale: 1.0, rotation: 0 };
+              transforms[elementId] = { ...current, ...s.transform };
+              newState = { ...newState, transforms };
+            }
+            if (s.transform && field === '__photo__') {
+              const photo = { ...prev.photo };
+              if (s.transform.x !== undefined) photo.xOffset = s.transform.x;
+              if (s.transform.y !== undefined) photo.yOffset = s.transform.y;
+              if (s.transform.scale !== undefined) photo.scale = s.transform.scale;
+              newState = { ...newState, photo };
+            }
+          }
+
+          return newState;
+        });
+
+        alert(`Style preset "${preset.name || 'Unnamed'}" applied to "${activeElement.label}"!`);
+      } catch (err) {
+        console.error('Style import failed:', err);
+        alert('Failed to import style preset. The file may be corrupted or incompatible.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   // Standalone HTML Exporter
@@ -709,6 +870,8 @@ export default function App() {
           onDeleteDesign={handleDeleteDesign}
           savedDesigns={Object.keys(savedDesigns)}
           appTheme={state.appTheme || 'light'}
+          onExportElementStyle={handleExportElementStyle}
+          onImportElementStyle={handleImportElementStyle}
         />
 
         {/* Hidden file input for importing designs */}
@@ -717,6 +880,15 @@ export default function App() {
           ref={importFileRef}
           accept=".html"
           onChange={handleImportFileChange}
+          className="hidden"
+        />
+
+        {/* Hidden file input for importing element style presets */}
+        <input
+          type="file"
+          ref={elementStyleImportRef}
+          accept=".json"
+          onChange={handleImportElementStyleFileChange}
           className="hidden"
         />
 
