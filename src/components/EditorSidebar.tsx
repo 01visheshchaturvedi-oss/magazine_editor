@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { AppState, ThemeId, PageType, CanvasElement, ElementShadowConfig, GradientConfig, gradientToCss, shadowToCss, BackgroundLayer, SYMBOLS, SYMBOL_CATEGORIES, ICON_PRESETS, BackgroundDecorationId, BACKGROUND_DECORATIONS, Template } from '../types';
+import { AppState, ThemeId, PageType, CanvasElement, ElementShadowConfig, GradientConfig, gradientToCss, shadowToCss, BackgroundLayer, SYMBOLS, SYMBOL_CATEGORIES, ICON_PRESETS, BackgroundDecorationId, BACKGROUND_DECORATIONS, Template, ExtractedElement, SavedImportedElement } from '../types';
 import { COMPILATION_THEMES } from '../data';
 import { PREBUILT_TEMPLATES, TEMPLATE_CATEGORIES } from '../templates';
 import { 
@@ -72,6 +72,15 @@ interface EditorSidebarProps {
   onUpdateBackgroundLayer?: (index: number, updates: Partial<BackgroundLayer>) => void;
   onSetBackgroundBlur?: (blur: number) => void;
   onUpdateAppState?: (updates: Partial<AppState>) => void;
+  // Imported HTML Theme Elements
+  onImportTheme?: () => void;
+  extractedElements?: ExtractedElement[];
+  importedThemeFileName?: string;
+  onClearExtractedElements?: () => void;
+  onSaveExtractedElement?: (el: ExtractedElement) => void;
+  savedElements?: SavedImportedElement[];
+  onDeleteSavedElement?: (id: string) => void;
+  onPlaceSavedElement?: (el: SavedImportedElement) => void;
 }
 
 export const EditorSidebar: React.FC<EditorSidebarProps> = ({
@@ -117,7 +126,15 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   onUpdateBackgroundLayer,
   onSetBackgroundBlur,
   onUpdateAppState,
-  onLoadTemplate
+  onLoadTemplate,
+  onImportTheme,
+  extractedElements,
+  importedThemeFileName,
+  onClearExtractedElements,
+  onSaveExtractedElement,
+  savedElements,
+  onDeleteSavedElement,
+  onPlaceSavedElement
 }) => {
   const [designName, setDesignName] = useState('');
   const [templateCategory, setTemplateCategory] = useState<string>('all');
@@ -161,9 +178,6 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
       ? `${accentBg} ${accentBorder}`
       : isDark ? 'bg-zinc-900/60 border-zinc-850 hover:bg-zinc-800' : 'bg-white border-slate-200 hover:bg-slate-100'
     }`,
-    themeBtn: (sel: boolean) => sel
-      ? `w-full p-2.5 rounded-xl border flex items-center justify-between text-xs transition-all cursor-pointer ${accentBorder} ${isDark ? 'bg-zinc-950' : 'bg-white'} shadow-sm`
-      : `w-full p-2.5 rounded-xl border flex items-center justify-between text-xs transition-all cursor-pointer ${isDark ? 'border-zinc-800 bg-zinc-950 hover:bg-zinc-850' : 'border-slate-200 bg-white hover:bg-slate-50'}`,
     input: `w-full rounded-lg border p-2.5 text-sm font-medium focus:ring-1 focus:ring-[${accent}] focus:outline-none ${isDark ? 'bg-zinc-950 text-white border-zinc-800' : 'bg-white text-slate-900 border-slate-200'}`,
     textarea: `w-full rounded-lg border p-2.5 text-sm focus:ring-1 focus:ring-[${accent}] focus:outline-none font-medium leading-relaxed ${isDark ? 'bg-zinc-950 text-white border-zinc-800' : 'bg-white text-slate-900 border-slate-200'}`,
     badgeDefault: (active: boolean) => `px-2 py-1 rounded text-xs font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${active ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm' : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white' : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900'}`,
@@ -1699,38 +1713,108 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                 <span>Aesthetic Color Palette</span>
               </label>
 
-              <div className="grid grid-cols-1 gap-2">
-                {(Object.keys(COMPILATION_THEMES) as ThemeId[]).map((thmId) => {
-                  const thm = COMPILATION_THEMES[thmId];
-                  const isSelected = state.currentTheme === thmId;
-                  return (
-                    <button
-                      key={thmId}
-                      onClick={() => onChangeTheme(thmId)}
-                      className={s.themeBtn(isSelected)}
-                    >
-                      <div className="flex items-center gap-2">
-                        {/* Palette Preview pill */}
-                        <div className="flex -space-x-1.5 shrink-0">
-                          <div className="w-4.5 h-4.5 rounded-full border border-black shadow" style={{ backgroundColor: thm.colors.primary }} />
-                          <div className="w-4.5 h-4.5 rounded-full border border-black shadow" style={{ backgroundColor: thm.colors.background }} />
-                          <div className="w-4.5 h-4.5 rounded-full border border-black shadow" style={{ backgroundColor: thm.colors.secondary }} />
+              {(() => {
+                const themeKeys = Object.keys(COMPILATION_THEMES) as ThemeId[];
+                const curIdx = themeKeys.indexOf(state.currentTheme);
+                const goPrev = () => { if (curIdx > 0) onChangeTheme(themeKeys[curIdx - 1]); };
+                const goNext = () => { if (curIdx < themeKeys.length - 1) onChangeTheme(themeKeys[curIdx + 1]); };
+
+                return (
+                  <div className="space-y-3">
+                    {/* Live visual preview of current theme */}
+                    <div className={`rounded-xl overflow-hidden border-2 transition-all duration-300 ${isDark ? 'border-zinc-700' : 'border-slate-200'}`}>
+                      {/* Theme banner with gradient background */}
+                      <div className="h-16 flex items-end justify-between p-3" style={{
+                        background: `linear-gradient(135deg, ${activeTheme.colors.secondary}, ${activeTheme.colors.background})`,
+                      }}>
+                        <div className="flex gap-1.5">
+                          <div className="w-7 h-7 rounded-full border-2 border-white/30 shadow-lg" style={{ backgroundColor: activeTheme.colors.primary }} title="Primary" />
+                          <div className="w-7 h-7 rounded-full border-2 border-white/30 shadow-lg" style={{ backgroundColor: activeTheme.colors.background }} title="Background" />
+                          <div className="w-7 h-7 rounded-full border-2 border-white/30 shadow-lg" style={{ backgroundColor: activeTheme.colors.secondary }} title="Secondary" />
+                          <div className="w-7 h-7 rounded-full border-2 border-white/30 shadow-lg" style={{ backgroundColor: activeTheme.colors.textPrimary }} title="Text" />
                         </div>
-                        <span className={`font-semibold ${isSelected ? 'text-[#ccff00]' : s.textSecondary}`}>
-                          {thm.name}
+                        <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full ${isDark ? 'bg-black/40 text-zinc-300' : 'bg-white/80 text-slate-700'}`}>
+                          {curIdx + 1}/{themeKeys.length}
                         </span>
                       </div>
-
-                      <div 
-                        className="w-4.5 h-4.5 rounded-full flex items-center justify-center text-xs"
-                        style={{ backgroundColor: isSelected ? thm.colors.primary : 'transparent', color: thm.colors.accentText }}
-                      >
-                        {isSelected && "✓"}
+                      {/* Theme name bar */}
+                      <div className={`px-3 py-2 flex items-center justify-between ${isDark ? 'bg-zinc-900' : 'bg-white'}`}>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="flex -space-x-1 shrink-0">
+                            <div className="w-3 h-3 rounded-full border border-black/30" style={{ backgroundColor: activeTheme.colors.primary }} />
+                            <div className="w-3 h-3 rounded-full border border-black/30" style={{ backgroundColor: activeTheme.colors.background }} />
+                            <div className="w-3 h-3 rounded-full border border-black/30" style={{ backgroundColor: activeTheme.colors.secondary }} />
+                          </div>
+                          <span className={`text-xs font-bold truncate ${s.textPrimary}`}>{activeTheme.name}</span>
+                        </div>
+                        {/* Preview text sample */}
+                        <div className="flex items-center gap-1 text-[9px] font-mono shrink-0">
+                          <span style={{ color: activeTheme.colors.primary }}>A</span>
+                          <span style={{ color: activeTheme.colors.textPrimary }}>a</span>
+                          <span className="px-1 rounded" style={{ backgroundColor: activeTheme.colors.primary, color: activeTheme.colors.secondary }}>✓</span>
+                        </div>
                       </div>
-                    </button>
-                  );
-                })}
-              </div>
+                    </div>
+
+                    {/* Carousel / Slider controls row */}
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={goPrev}
+                        disabled={curIdx === 0}
+                        className={`p-1.5 rounded-lg border transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shrink-0 ${
+                          isDark ? 'border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300' : 'border-slate-200 bg-white hover:bg-slate-100 text-slate-600'
+                        }`}
+                        title="Previous theme"
+                        aria-label="Previous theme"
+                      >
+                        ◀
+                      </button>
+
+                      {/* Theme slider/range */}
+                      <input
+                        type="range"
+                        min={0}
+                        max={themeKeys.length - 1}
+                        value={curIdx}
+                        onChange={(e) => onChangeTheme(themeKeys[parseInt(e.target.value)])}
+                        className="flex-1 h-1.5 accent-[#ccff00] cursor-pointer"
+                        aria-label="Theme slider"
+                        title="Slide to browse themes"
+                      />
+
+                      <button
+                        onClick={goNext}
+                        disabled={curIdx === themeKeys.length - 1}
+                        className={`p-1.5 rounded-lg border transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed shrink-0 ${
+                          isDark ? 'border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300' : 'border-slate-200 bg-white hover:bg-slate-100 text-slate-600'
+                        }`}
+                        title="Next theme"
+                        aria-label="Next theme"
+                      >
+                        ▶
+                      </button>
+                    </div>
+
+                    {/* Compact dropdown selector for all 15 themes */}
+                    <select
+                      value={state.currentTheme}
+                      onChange={(e) => onChangeTheme(e.target.value as ThemeId)}
+                      className={`w-full rounded-lg border p-2 text-[11px] font-mono focus:outline-none cursor-pointer ${
+                        isDark ? 'bg-zinc-950 text-white border-zinc-800 focus:ring-1 focus:ring-[#ccff00]' : 'bg-white text-slate-900 border-slate-200 focus:ring-1 focus:ring-emerald-500'
+                      }`}
+                    >
+                      {themeKeys.map((tid) => {
+                        const t = COMPILATION_THEMES[tid];
+                        return (
+                          <option key={tid} value={tid}>
+                            {t.name}  —  {t.colors.primary} / {t.colors.background}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Background Effects — multi-layer theme compositing with blur */}
@@ -2551,6 +2635,22 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                         className="w-full px-2 py-1 border border-zinc-800 rounded-lg text-xs font-mono bg-zinc-950 text-white focus:outline-none focus:ring-1 focus:ring-[#ccff00]" />
                     </div>
                   </div>
+
+                  {/* Delete Canvas Element */}
+                  <div className="pt-3 border-t border-red-900/50">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onRemoveCanvasElement?.(canvasEl.id);
+                        onSelectCanvas(null);
+                      }}
+                      className="w-full py-2.5 px-3 bg-red-950/30 hover:bg-red-900/40 border border-dashed border-red-500/40 rounded-lg text-xs font-mono text-red-400 hover:text-red-300 transition-colors cursor-pointer flex items-center justify-center gap-2"
+                      title="Delete this canvas element"
+                    >
+                      <Trash2 size={13} />
+                      <span>Delete Element</span>
+                    </button>
+                  </div>
                 </div>
               );
             })()}
@@ -2841,6 +2941,149 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                   </button>
                 </div>
               ))}
+            </div>
+
+            {/* ========== IMPORT HTML THEME ========== */}
+            <div className={`${s.panelSolid} p-4 space-y-3`}>
+              <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b ${s.divider} ${s.textPrimary}`}>
+                <FolderOpen size={13} className="text-amber-400" />
+                <span>Import Theme Elements</span>
+              </span>
+
+              <button
+                type="button"
+                onClick={onImportTheme}
+                className={`w-full py-2.5 px-3 rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 text-[11px] font-mono font-bold ${
+                  isDark
+                    ? 'bg-amber-950/20 hover:bg-amber-900/30 text-amber-400 border-amber-500/40'
+                    : 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-300/50'
+                }`}
+              >
+                <FolderOpen size={14} />
+                <span>Import HTML Theme File</span>
+              </button>
+              <p className={`text-[9px] ${s.textMuted} leading-relaxed`}>
+                Select an HTML theme/cover file to extract its elements. You can then save any element to your personal library.
+              </p>
+
+              {extractedElements && extractedElements.length > 0 && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${s.textMuted}`}>
+                      Extracted from: {importedThemeFileName || 'Unknown'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={onClearExtractedElements}
+                      className="text-[10px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                    {extractedElements.map((el) => (
+                      <div
+                        key={el.id}
+                        className={`rounded-lg border p-2 space-y-1.5 ${isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-slate-200'}`}
+                      >
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-zinc-500">
+                            {el.tagName}
+                          </span>
+                          <span className="text-[8px] font-mono text-zinc-600 truncate max-w-[120px]">{el.selector}</span>
+                        </div>
+                        <p className="text-[10px] font-mono text-zinc-300 line-clamp-2 leading-tight">
+                          {el.textPreview || '(no text preview)'}
+                        </p>
+                        <div className="flex gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => onSaveExtractedElement?.(el)}
+                            className={`flex-1 py-1 px-1.5 rounded-lg border text-[9px] font-mono cursor-pointer transition-colors ${
+                              isDark
+                                ? 'bg-emerald-950/20 hover:bg-emerald-900/30 text-emerald-400 border-emerald-500/40'
+                                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-300/50'
+                            }`}
+                          >
+                            + Save to Library
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {(!extractedElements || extractedElements.length === 0) && (
+                <p className={`text-[10px] font-mono italic ${s.textMuted}`}>
+                  No elements extracted yet. Click "Import HTML Theme File" to get started.
+                </p>
+              )}
+            </div>
+
+            {/* ========== ELEMENT LIBRARY ========== */}
+            <div className={`${s.panelSolid} p-4 space-y-3`}>
+              <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b ${s.divider} ${s.textPrimary}`}>
+                <Sparkles size={13} className="text-purple-400" />
+                <span>Element Library ({savedElements?.length || 0})</span>
+              </span>
+
+              {savedElements && savedElements.length > 0 ? (
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                  {savedElements.map((el) => (
+                    <div
+                      key={el.id}
+                      className={`rounded-lg border p-2 space-y-1.5 transition-colors ${isDark ? 'bg-zinc-950 border-zinc-800 hover:border-purple-500/40' : 'bg-white border-slate-200 hover:border-purple-400/50'}`}
+                    >
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-[10px] font-bold truncate flex-1">{el.name}</span>
+                        <span className="text-[8px] font-mono text-zinc-500 shrink-0">
+                          {new Date(el.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {el.originalFile && (
+                        <span className="block text-[8px] font-mono text-zinc-600 truncate">
+                          From: {el.originalFile}
+                        </span>
+                      )}
+                      <div className="flex gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => onPlaceSavedElement?.(el)}
+                          className={`flex-1 py-1 px-1.5 rounded-lg border text-[9px] font-mono cursor-pointer transition-colors ${
+                            isDark
+                              ? 'bg-cyan-950/20 hover:bg-cyan-900/30 text-cyan-400 border-cyan-500/40'
+                              : 'bg-cyan-50 hover:bg-cyan-100 text-cyan-700 border-cyan-300/50'
+                          }`}
+                        >
+                          Place on Canvas
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onDeleteSavedElement?.(el.id)}
+                          className={`py-1 px-1.5 rounded-lg border text-[9px] font-mono cursor-pointer transition-colors ${
+                            isDark
+                              ? 'bg-red-950/20 hover:bg-red-900/30 text-red-400 border-red-500/40'
+                              : 'bg-red-50 hover:bg-red-100 text-red-700 border-red-300/50'
+                          }`}
+                        >
+                          <Trash2 size={10} />
+                        </button>
+                      </div>
+                      <details className="text-[8px] font-mono">
+                        <summary className="cursor-pointer text-zinc-500 hover:text-zinc-300">Preview HTML</summary>
+                        <pre className={`mt-1 p-1.5 rounded border overflow-x-auto whitespace-pre-wrap max-h-16 overflow-y-auto text-[7px] ${isDark ? 'bg-zinc-950 border-zinc-800 text-zinc-400' : 'bg-slate-50 border-slate-200 text-slate-600'}`}>
+                          {el.html.slice(0, 500)}{el.html.length > 500 ? '...' : ''}
+                        </pre>
+                      </details>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className={`text-[10px] font-mono italic ${s.textMuted}`}>
+                  No saved elements yet. Import an HTML theme file, then save elements to your library.
+                </p>
+              )}
             </div>
           </div>
         )}

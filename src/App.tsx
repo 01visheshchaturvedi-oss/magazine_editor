@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { PageType, ThemeId, AppState, DuplicatedElement, CanvasElement, Template, ElementShadowConfig, GradientConfig, BackgroundLayer } from './types';
+import { PageType, ThemeId, AppState, DuplicatedElement, CanvasElement, Template, ElementShadowConfig, GradientConfig, BackgroundLayer, SavedImportedElement, ExtractedElement } from './types';
 import { PREBUILT_TEMPLATES } from './templates';
 import { INITIAL_STATE, COMPILATION_THEMES } from './data';
 import { PageRenderer } from './components/PageRenderer';
 import { EditorSidebar } from './components/EditorSidebar';
 import { generateStandaloneHtml } from './utils/exporter';
+import { extractElementsFromHtml } from './utils/htmlImporter';
 import { 
   Printer, 
   HelpCircle, 
@@ -57,6 +58,113 @@ export default function App() {
   const [showPrintTip, setShowPrintTip] = useState(true);
   const [canvasZoom, setCanvasZoom] = useState(0.75); // 75% default zoom for comfortable editing
   const [selectedCanvasId, setSelectedCanvasId] = useState<string | null>(null);
+
+  // ── Imported HTML Theme Elements ──────────────────────────────────
+  const [extractedElements, setExtractedElements] = useState<ExtractedElement[]>([]);
+  const [importedThemeFileName, setImportedThemeFileName] = useState<string>('');
+
+  const [savedElements, setSavedElements] = useState<SavedImportedElement[]>(() => {
+    try {
+      const saved = localStorage.getItem('educover_saved_elements');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+
+  // Persist saved elements to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('educover_saved_elements', JSON.stringify(savedElements));
+    } catch (e) {
+      console.error('Failed to save elements library:', e);
+    }
+  }, [savedElements]);
+
+  // File input ref for importing theme HTML
+  const themeImportRef = useRef<HTMLInputElement>(null);
+
+  const handleImportTheme = () => {
+    themeImportRef.current?.click();
+  };
+
+  const handleThemeImportFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fileName = file.name;
+    setImportedThemeFileName(fileName);
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const html = reader.result as string;
+        const elements = extractElementsFromHtml(html);
+        setExtractedElements(elements);
+        if (elements.length === 0) {
+          alert('Could not extract any meaningful elements from this HTML file. Try a different file.');
+        }
+      } catch (err) {
+        console.error('Theme import failed:', err);
+        alert('Failed to parse the HTML file. The file may be corrupted or incompatible.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handleClearExtractedElements = () => {
+    setExtractedElements([]);
+    setImportedThemeFileName('');
+  };
+
+  const handleSaveExtractedElement = (el: ExtractedElement) => {
+    const newSaved: SavedImportedElement = {
+      id: `saved_${Date.now()}`,
+      name: el.textPreview.slice(0, 40) || `${el.tagName} Element`,
+      html: el.html,
+      css: el.css,
+      createdAt: Date.now(),
+      tags: [importedThemeFileName.replace(/\.html$/i, '')],
+      originalFile: importedThemeFileName,
+    };
+    setSavedElements(prev => [newSaved, ...prev]);
+  };
+
+  const handleDeleteSavedElement = (id: string) => {
+    setSavedElements(prev => prev.filter(el => el.id !== id));
+  };
+
+  const handlePlaceSavedElement = (savedEl: SavedImportedElement) => {
+    // Create a canvas element from the saved imported element
+    // Embed the CSS as a <style> tag prepended to the HTML content so styles render
+    const styledHtml = savedEl.css
+      ? `<style>\n${savedEl.css}\n</style>\n${savedEl.html}`
+      : savedEl.html;
+    const count = (state.canvasElements || []).length;
+    const newEl: CanvasElement = {
+      id: `ce_imported_${Date.now()}`,
+      page: state.currentPage,
+      type: 'text',
+      x: 60 + count * 20,
+      y: 60 + count * 20,
+      width: 300,
+      height: 150,
+      rotation: 0,
+      scale: 1,
+      content: styledHtml,
+      textColor: '#ffffff',
+      fontSize: 14,
+      fontFamily: 'sans-serif',
+      backgroundColor: '#1a1a2e',
+      borderColor: '#ccff00',
+      borderWidth: 1,
+      borderRadius: 8,
+      opacity: 1,
+      zIndex: 20,
+      renderAsHtml: true,
+    };
+    setState(prev => ({
+      ...prev,
+      canvasElements: [...(prev.canvasElements || []), newEl],
+    }));
+  };
 
   // Save changes to localStorage for continuity
   useEffect(() => {
@@ -996,7 +1104,25 @@ return (prev.coverData as any)[field] || '';
            onSetBackgroundBlur={handleSetBackgroundBlur}
            onUpdateAppState={handleUpdateAppState}
            onLoadTemplate={handleLoadTemplate}
+           // Imported HTML theme element props
+           onImportTheme={handleImportTheme}
+           extractedElements={extractedElements}
+           importedThemeFileName={importedThemeFileName}
+           onClearExtractedElements={handleClearExtractedElements}
+           onSaveExtractedElement={handleSaveExtractedElement}
+           savedElements={savedElements}
+           onDeleteSavedElement={handleDeleteSavedElement}
+           onPlaceSavedElement={handlePlaceSavedElement}
           />
+
+        {/* Hidden file input for importing theme HTML */}
+        <input
+          type="file"
+          ref={themeImportRef}
+          accept=".html"
+          onChange={handleThemeImportFileChange}
+          className="hidden"
+        />
 
         {/* Hidden file input for importing designs */}
         <input

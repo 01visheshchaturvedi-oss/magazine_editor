@@ -777,6 +777,12 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
             >
               {el.content || '∑'}
             </span>
+          ) : el.type === 'text' && el.renderAsHtml ? (
+            <span
+              onDoubleClick={(e) => { e.stopPropagation(); setEditingCanvasId(el.id); }}
+              style={{ pointerEvents: isSelected ? 'auto' : 'none', width: '100%', height: '100%', overflow: 'auto', fontSize: 12, textAlign: 'left', lineHeight: 1.5 }}
+              dangerouslySetInnerHTML={{ __html: el.content || '' }}
+            />
           ) : el.type === 'text' ? (
             <span
               onDoubleClick={(e) => { e.stopPropagation(); setEditingCanvasId(el.id); }}

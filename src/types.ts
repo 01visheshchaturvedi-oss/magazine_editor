@@ -454,6 +454,7 @@ export interface CanvasElement {
   clipLeft?: number;
   shadow?: ElementShadowConfig;
   gradient?: GradientConfig;
+  renderAsHtml?: boolean;
 }
 
 export interface AppState {
@@ -492,6 +493,27 @@ export interface AppState {
   backgroundDecoration?: BackgroundDecorationId;
   decorationColor?: string;
   decorationOpacity?: number;
+}
+
+// ── Imported HTML Elements ────────────────────────────────
+
+export interface SavedImportedElement {
+  id: string;
+  name: string;
+  html: string;
+  css: string;
+  createdAt: number;
+  tags: string[];
+  originalFile: string;
+}
+
+export interface ExtractedElement {
+  id: string;
+  tagName: string;
+  html: string;
+  css: string;
+  textPreview: string;
+  selector: string;
 }
 
 export type BackgroundDecorationId = 'none' | 'math-ring' | 'dot-grid' | 'wave-lines' | 'rings' | 'stars' | 'hexagons' | 'crosshatch' | 'diagonal-lines' | 'scattered-circles' | 'zigzag' | 'fraction-ring' | 'formula-flow';
