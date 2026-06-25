@@ -262,7 +262,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
           </div>
           <div className="space-y-1">
             <h4 className={`text-xs font-bold ${s.textPrimary}`}>No Selected Layer</h4>
-            <p className={`text-[10px] ${s.textMuted} max-w-[240px] mx-auto leading-relaxed`}>
+            <p className={`text-xs ${s.textMuted} max-w-[240px] mx-auto leading-relaxed`}>
               Click on any text block on the magazine cover preview, or choose from the <b>Layer List</b> under the <b>Pages</b> tab to edit text custom styles, sizes, and backgrounds!
             </p>
           </div>
@@ -390,7 +390,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             </span>
             <button 
               onClick={onClearActiveElement}
-              className={`text-[10px] underline cursor-pointer ${isDark ? 'text-zinc-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`text-xs underline cursor-pointer ${isDark ? 'text-zinc-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}
             >
               Deselect
             </button>
@@ -433,7 +433,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                   <button
                     type="button"
                     onClick={handleResetTransform}
-                    className="text-[10px] text-amber-400 hover:underline cursor-pointer font-semibold"
+                    className="text-xs text-amber-400 hover:underline cursor-pointer font-semibold"
                   >
                     Reset
                   </button>
@@ -582,7 +582,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                           onUpdateText('global', 'customElementStyles', allStyles);
                         }
                       }}
-                      className="px-2 h-8 rounded-lg border border-zinc-800 bg-zinc-900 text-[9px] text-zinc-500 hover:text-red-400 transition-colors cursor-pointer font-mono shrink-0"
+                      className="px-2 h-8 rounded-lg border border-zinc-800 bg-zinc-900 text-[11px] text-zinc-500 hover:text-red-400 transition-colors cursor-pointer font-mono shrink-0"
                       title="Clear all text styles"
                       aria-label="Clear all text styles"
                     >
@@ -619,7 +619,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                 </summary>
                 <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
                     {currentBg === undefined ? 'Theme Default' : currentBg === 'none' ? 'None (Transparent)' : currentBg}
                   </span>
                 </div>
@@ -744,7 +744,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                 </summary>
                 <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
                     {currentTextColor === undefined ? 'Theme Default' : currentTextColor}
                   </span>
                 </div>
@@ -771,7 +771,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       key={preset.label}
                       type="button"
                       onClick={() => handleTextColorChange(preset.value)}
-                      className={`px-2 py-1 rounded text-[9px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
+                      className={`px-2 py-1.5 rounded text-[11px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
                         currentTextColor === preset.value
                           ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
                           : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
@@ -847,7 +847,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     <button
                       type="button"
                       onClick={() => handleFontChange(undefined)}
-                      className="px-2 py-1 bg-zinc-900 hover:bg-zinc-800 text-[9px] border border-zinc-805 text-red-400 rounded-lg shrink-0 cursor-pointer font-bold"
+                      className="px-2 py-1 bg-zinc-900 hover:bg-zinc-800 text-[11px] border border-zinc-805 text-red-400 rounded-lg shrink-0 cursor-pointer font-bold"
                     >
                       Clear
                     </button>
@@ -881,7 +881,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                   <span className="text-zinc-500 text-[11px]">▸</span>
                 </summary>
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
                     {currentAccentColor === undefined ? 'Theme Default' : currentAccentColor}
                   </span>
                 </div>
@@ -908,7 +908,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       key={preset.label}
                       type="button"
                       onClick={() => handleAccentColorChange(preset.value)}
-                      className={`px-2 py-1 rounded text-[9px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
+                      className={`px-2 py-1.5 rounded text-[11px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
                         currentAccentColor === preset.value
                           ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
                           : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
@@ -954,7 +954,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                   <span className="text-zinc-500 text-[11px]">▸</span>
                 </summary>
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
                     {currentGlowColor === undefined ? 'Off' : currentGlowColor}
                   </span>
                 </div>
@@ -981,7 +981,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       key={preset.label}
                       type="button"
                       onClick={() => handleGlowColorChange(preset.value)}
-                      className={`px-2 py-1 rounded text-[9px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
+                      className={`px-2 py-1.5 rounded text-[11px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
                         currentGlowColor === preset.value
                           ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
                           : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
@@ -994,7 +994,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
                 {currentGlowColor !== undefined && (
                   <div className="space-y-1">
-                    <div className="flex justify-between text-[9px] text-zinc-500">
+                    <div className="flex justify-between text-[11px] text-zinc-500">
                       <span>Glow Width</span>
                       <span>{currentGlowWidth}px</span>
                     </div>
@@ -1013,7 +1013,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                         handleGlowColorChange(undefined);
                         handleGlowWidthChange(15);
                       }}
-                      className="text-[9px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer font-bold"
+                      className="text-[11px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer font-bold"
                     >
                       Reset Glow
                     </button>
@@ -1067,7 +1067,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       key={preset.label}
                       type="button"
                       onClick={() => handleShadowChange(preset.shadow)}
-                      className={`px-2 py-1 rounded text-[9px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
+                      className={`px-2 py-1.5 rounded text-[11px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
                         (!isActive && preset.shadow === undefined) || (isActive && shadow.color === preset.shadow?.color)
                           ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
                           : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
@@ -1080,7 +1080,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
                 {isActive && (
                   <div className="space-y-1.5">
-                    <div className="flex justify-between text-[9px] text-zinc-500">
+                    <div className="flex justify-between text-[11px] text-zinc-500">
                       <span>Blur</span>
                       <span>{shadow.blur}px</span>
                     </div>
@@ -1094,7 +1094,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       aria-label="Shadow blur"
                     />
 
-                    <div className="flex justify-between text-[9px] text-zinc-500">
+                    <div className="flex justify-between text-[11px] text-zinc-500">
                       <span>Offset X</span>
                       <span>{shadow.offsetX}px</span>
                     </div>
@@ -1108,7 +1108,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       aria-label="Shadow offset X"
                     />
 
-                    <div className="flex justify-between text-[9px] text-zinc-500">
+                    <div className="flex justify-between text-[11px] text-zinc-500">
                       <span>Offset Y</span>
                       <span>{shadow.offsetY}px</span>
                     </div>
@@ -1124,7 +1124,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
                     {isBox && (
                       <>
-                        <div className="flex justify-between text-[9px] text-zinc-500">
+                        <div className="flex justify-between text-[11px] text-zinc-500">
                           <span>Spread</span>
                           <span>{shadow.spread}px</span>
                         </div>
@@ -1138,7 +1138,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                           aria-label="Shadow spread"
                         />
 
-                        <label className="flex items-center gap-2 text-[9px] text-zinc-400 cursor-pointer">
+                        <label className="flex items-center gap-2 text-[11px] text-zinc-400 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={shadow.inset || false}
@@ -1153,7 +1153,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     <button
                       type="button"
                       onClick={() => handleShadowChange(undefined)}
-                      className="text-[9px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer font-bold"
+                      className="text-[11px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer font-bold"
                     >
                       Remove Shadow
                     </button>
@@ -1225,7 +1225,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                           handleGradientChange({ type: grad.type, angle: grad.angle, colors: [...preset.colors] });
                         }
                       }}
-                      className={`px-2 py-1 rounded text-[9px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
+                      className={`px-2 py-1.5 rounded text-[11px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
                         (!isActive && preset.label === 'Off') || (isActive && JSON.stringify(grad.colors) === JSON.stringify(preset.colors))
                           ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
                           : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
@@ -1242,7 +1242,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       <select
                         value={grad.type}
                         onChange={(e) => handleGradientChange({ ...grad, type: e.target.value as 'linear' | 'radial' })}
-                        className="flex-1 rounded-lg border p-1.5 text-[9px] font-mono bg-zinc-950 text-zinc-300 border-zinc-800"
+                        className="flex-1 rounded-lg border p-1.5 text-[11px] font-mono bg-zinc-950 text-zinc-300 border-zinc-800"
                       >
                         <option value="linear">Linear</option>
                         <option value="radial">Radial</option>
@@ -1251,7 +1251,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
                     {grad.type === 'linear' && (
                       <div className="space-y-1">
-                        <div className="flex justify-between text-[9px] text-zinc-500">
+                        <div className="flex justify-between text-[11px] text-zinc-500">
                           <span>Angle</span>
                           <span>{grad.angle}°</span>
                         </div>
@@ -1268,7 +1268,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     )}
 
                     <div className="space-y-1">
-                      <span className="text-[9px] text-zinc-500 block">Color Stops</span>
+                      <span className="text-[11px] text-zinc-500 block">Color Stops</span>
                       {grad.colors.map((c, i) => (
                         <div key={i} className="flex items-center gap-1.5">
                           <input
@@ -1282,7 +1282,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                             <button
                               type="button"
                               onClick={() => removeStop(i)}
-                              className="text-[9px] text-red-500 hover:text-red-400 font-mono cursor-pointer"
+                              className="text-[11px] text-red-500 hover:text-red-400 font-mono cursor-pointer"
                               title="Remove stop"
                             >
                               ×
@@ -1294,7 +1294,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                         <button
                           type="button"
                           onClick={addStop}
-                          className="text-[9px] text-cyan-400 hover:text-cyan-300 font-mono cursor-pointer"
+                          className="text-[11px] text-cyan-400 hover:text-cyan-300 font-mono cursor-pointer"
                         >
                           + Add stop
                         </button>
@@ -1304,7 +1304,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     <button
                       type="button"
                       onClick={() => handleGradientChange(undefined)}
-                      className="text-[9px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer font-bold"
+                      className="text-[11px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer font-bold"
                     >
                       Remove Gradient
                     </button>
@@ -1409,12 +1409,12 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             <Layers size={13} className="text-[#ccff00]" />
             <span>📝 Layers List Directory</span>
           </label>
-          <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ${isDark ? 'bg-zinc-900 border-zinc-850 text-zinc-400' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>
+          <span className={`text-[11px] font-mono px-1.5 py-0.5 rounded border ${isDark ? 'bg-zinc-900 border-zinc-850 text-zinc-400' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>
             {layers.length} Layers
           </span>
         </div>
 
-        <p className={`text-[9px] ${s.textMuted} leading-normal mb-1`}>
+        <p className={`text-[11px] ${s.textMuted} leading-normal mb-1`}>
           Click any magazine field below to instantly unlock custom colors, fonts, margins, and layout offsets:
         </p>
 
@@ -1457,11 +1457,11 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
         {(state.canvasElements ?? []).filter(el => el.page === state.currentPage).length > 0 && (
           <>
             <div className="flex items-center justify-between pt-2 border-t border-zinc-800 mt-1">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1">
                 <Square size={10} className="text-[#ccff00]" />
                 <span>Canvas Elements</span>
               </span>
-              <span className={"text-[9px] font-mono px-1.5 py-0.5 rounded border " + (isDark ? 'bg-zinc-900 border-zinc-850 text-zinc-400' : 'bg-slate-100 border-slate-200 text-slate-500')}>
+              <span className={"text-[11px] font-mono px-1.5 py-0.5 rounded border " + (isDark ? 'bg-zinc-900 border-zinc-850 text-zinc-400' : 'bg-slate-100 border-slate-200 text-slate-500')}>
                 {(state.canvasElements ?? []).filter(el => el.page === state.currentPage).length} Items
               </span>
             </div>
@@ -1482,7 +1482,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     >
                       <div className="flex items-center gap-2 truncate">
                         <span className={"w-1.5 h-1.5 rounded-full shrink-0 " + (isCanvasSelected ? 'bg-[#ccff00]' : isDark ? 'bg-zinc-650' : 'bg-slate-300')} />
-                        <span className="truncate text-[10px]">{el.type === 'box' ? '📦 Box' : '📝 Text'}{el.content ? ': "' + el.content.slice(0, 15) + (el.content.length > 15 ? '...' : '') + '"' : ''}</span>
+                        <span className="truncate text-xs">{el.type === 'box' ? '📦 Box' : '📝 Text'}{el.content ? ': "' + el.content.slice(0, 15) + (el.content.length > 15 ? '...' : '') + '"' : ''}</span>
                       </div>
                       <ChevronRight size={11} className={isCanvasSelected ? 'text-[#ccff00]' : isDark ? 'text-zinc-600' : 'text-slate-300'} />
                     </button>
@@ -1505,7 +1505,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
         </div>
         <div>
           <h2 className={`text-sm font-black uppercase tracking-tight ${s.textPrimary}`}>EduCover Studio</h2>
-          <p className={`text-[9px] uppercase tracking-widest font-mono ${s.textMuted}`}>High-Contrast Designer</p>
+          <p className={`text-[11px] uppercase tracking-widest font-mono ${s.textMuted}`}>High-Contrast Designer</p>
         </div>
       </div>
 
@@ -1619,7 +1619,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       </div>
 
                       <div 
-                        className="w-4.5 h-4.5 rounded-full flex items-center justify-center text-[10px]"
+                        className="w-4.5 h-4.5 rounded-full flex items-center justify-center text-xs"
                         style={{ backgroundColor: isSelected ? thm.colors.primary : 'transparent', color: thm.colors.accentText }}
                       >
                         {isSelected && "✓"}
@@ -1639,7 +1639,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
               {/* Background blur slider */}
               <div className="space-y-1">
-                <div className="flex justify-between text-[9px] text-zinc-500">
+                <div className="flex justify-between text-[11px] text-zinc-500">
                   <span>Background Blur</span>
                   <span>{state.backgroundBlur || 0}px</span>
                 </div>
@@ -1695,7 +1695,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                         <button
                           type="button"
                           onClick={() => onRemoveBackgroundLayer?.(i)}
-                          className="text-[9px] text-red-500 hover:text-red-400 font-mono cursor-pointer"
+                          className="text-[11px] text-red-500 hover:text-red-400 font-mono cursor-pointer"
                         >
                           Remove
                         </button>

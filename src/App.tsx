@@ -790,11 +790,11 @@ export default function App() {
           <div>
             <h1 className={`text-base font-black tracking-tight flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
               <span>EDU-COVER STUDIO</span>
-              <span className="text-[9px] uppercase font-mono tracking-widest bg-yellow-400 text-black px-1.5 py-0.2 rounded font-black">
+              <span className="text-[11px] uppercase font-mono tracking-widest bg-yellow-400 text-black px-1.5 py-0.2 rounded font-black">
                 PRO MULTI-THEME
               </span>
             </h1>
-            <p className={`text-[10px] ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
+            <p className={`text-xs ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
               High-contrast study materials & magazine cover layout builder for elite educators.
             </p>
           </div>
@@ -804,14 +804,14 @@ export default function App() {
         <div className="hidden md:flex items-center gap-4 text-xs font-mono">
           <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-colors ${isDark ? 'bg-zinc-950 border-zinc-800 text-zinc-400' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px]">AUTO-SAVE:</span>
-            <span className={`text-[10px] font-bold ${isDark ? 'text-zinc-200' : 'text-slate-800'}`}>{lastSaved || 'Initial load'}</span>
+            <span className="text-xs">AUTO-SAVE:</span>
+            <span className={`text-xs font-bold ${isDark ? 'text-zinc-200' : 'text-slate-800'}`}>{lastSaved || 'Initial load'}</span>
           </div>
 
           <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-colors ${isDark ? 'bg-zinc-950 border-zinc-800 text-zinc-400' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>
             <Sparkles size={11} className={isDark ? 'text-[#ccff00]' : 'text-teal-600'} />
-            <span className="text-[10px]">CURRENT:</span>
-            <span className={`text-[10px] font-bold uppercase ${isDark ? 'text-white' : 'text-slate-900'}`}>{activeTheme.name}</span>
+            <span className="text-xs">CURRENT:</span>
+            <span className={`text-xs font-bold uppercase ${isDark ? 'text-white' : 'text-slate-900'}`}>{activeTheme.name}</span>
           </div>
         </div>
 
@@ -898,7 +898,7 @@ export default function App() {
                 customBackgroundColor: undefined,
                 customTextColor: undefined,
               }))}
-              className={`px-2.5 py-2 rounded-xl text-[9px] font-mono font-bold transition-all border cursor-pointer flex items-center gap-1.5 ${
+              className={`px-2.5 py-2 rounded-xl text-[11px] font-mono font-bold transition-all border cursor-pointer flex items-center gap-1.5 ${
                 isDark
                   ? 'bg-amber-950/30 text-amber-400 border-amber-500/30 hover:bg-amber-900/40'
                   : 'bg-amber-50 text-amber-700 border-amber-300/50 hover:bg-amber-100'
@@ -1035,7 +1035,7 @@ export default function App() {
                 >
                   <ZoomOut size={12} />
                 </button>
-                <span className={`font-mono text-[10px] font-bold min-w-[38px] text-center ${
+                <span className={`font-mono text-xs font-bold min-w-[38px] text-center ${
                   isDark ? 'text-zinc-300' : 'text-slate-700'
                 }`}>
                   {Math.round(canvasZoom * 100)}%
@@ -1067,7 +1067,7 @@ export default function App() {
 
               <button
                 onClick={() => handleUpdateText('global', 'hideDragTooltips', !state.hideDragTooltips)}
-                className={`px-2 py-0.5 rounded text-[9px] font-mono border transition-all cursor-pointer ${
+                className={`px-2 py-0.5 rounded text-[11px] font-mono border transition-all cursor-pointer ${
                   state.hideDragTooltips
                     ? "bg-red-500/10 text-red-500 border-red-500/30 font-bold"
                     : isDark
@@ -1078,7 +1078,7 @@ export default function App() {
               >
                 {state.hideDragTooltips ? "Tooltips Off" : "Hide Tooltips"}
               </button>
-              <span className={`font-mono px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider ${
+              <span className={`font-mono px-1.5 py-0.5 rounded text-[11px] uppercase tracking-wider ${
                 isDark ? 'bg-zinc-950 text-[#ccff00]' : 'bg-slate-100 text-teal-700 font-bold'
               }`}>
                 A4
@@ -1126,7 +1126,7 @@ export default function App() {
 
               {/* Hint message box showing up on layout hover */}
               {!state.hideDragTooltips && (
-                <div className={`absolute top-3 left-3 text-[10px] font-mono font-bold px-2 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl border ${
+                <div className={`absolute top-3 left-3 text-xs font-mono font-bold px-2 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl border ${
                   isDark 
                     ? 'bg-zinc-950/85 text-zinc-300 border-zinc-700/50 backdrop-blur' 
                     : 'bg-white/95 text-slate-700 border-slate-200 backdrop-blur'
@@ -1147,7 +1147,7 @@ export default function App() {
               <span className="text-xl">💡</span>
               <div className="space-y-1">
                 <h4 className={`text-xs font-extrabold uppercase tracking-wide ${isDark ? 'text-amber-400' : 'text-amber-650'}`}>A4 Standardized Printing</h4>
-                <p className={`text-[10px] leading-relaxed ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
+                <p className={`text-xs leading-relaxed ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>
                   We've standardized the layout to professional <b>A4 PDF size</b>. When printing or exporting, choose <b>"Save as PDF"</b> or <b>"Print"</b>, set your layout to <b>Portrait</b>, paper size to <b>A4</b>, and margins to <b>None</b> or <b>Minimum</b> to get exact publication fits!
                 </p>
               </div>
