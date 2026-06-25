@@ -148,6 +148,10 @@ export interface CanvasElement {
   glowWidth?: number;
   opacity?: number;
   zIndex?: number;
+  clipTop?: number;
+  clipRight?: number;
+  clipBottom?: number;
+  clipLeft?: number;
 }
 
 export interface AppState {

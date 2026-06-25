@@ -681,6 +681,9 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
             wordBreak: 'break-word',
             userSelect: 'none',
             ...glowStyle,
+            ...(el.clipTop != null || el.clipRight != null || el.clipBottom != null || el.clipLeft != null
+              ? { clipPath: `inset(${el.clipTop ?? 0}px ${el.clipRight ?? 0}px ${el.clipBottom ?? 0}px ${el.clipLeft ?? 0}px)` }
+              : {}),
           }}
           className={`rounded transition-shadow ${isSelected ? 'ring-2 ring-[#ccff00]' : 'hover:ring-1 hover:ring-[#ccff00]/50'}`}
         >

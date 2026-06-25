@@ -1892,6 +1892,49 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       className="w-full px-2 py-1 border border-zinc-800 rounded-lg text-xs font-mono bg-zinc-950 text-white focus:outline-none focus:ring-1 focus:ring-[#ccff00]" />
                   </div>
 
+                  {/* Trim Controls - CSS clip-path inset sliders */}
+                  <div className="pt-2 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-mono text-zinc-400 block font-bold">✂️ Trim Background</label>
+                      {(canvasEl.clipTop != null || canvasEl.clipRight != null || canvasEl.clipBottom != null || canvasEl.clipLeft != null) && (
+                        <button
+                          type="button"
+                          onClick={() => onUpdateCanvasElement?.(canvasEl.id, { clipTop: undefined, clipRight: undefined, clipBottom: undefined, clipLeft: undefined })}
+                          className="text-[9px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer"
+                        >
+                          Reset All Trims
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-[8px] text-zinc-500 leading-tight">Cut away unwanted edges from the background box. Higher values trim more from each side.</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <div className="flex justify-between text-[9px] text-zinc-500 font-mono"><span>Top</span><span className="text-zinc-300">{canvasEl.clipTop ?? 0}px</span></div>
+                        <input type="range" min="0" max="100" value={canvasEl.clipTop ?? 0}
+                          onChange={(e) => onUpdateCanvasElement?.(canvasEl.id, { clipTop: parseInt(e.target.value) })}
+                          className="w-full accent-rose-400 cursor-pointer" />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-[9px] text-zinc-500 font-mono"><span>Bottom</span><span className="text-zinc-300">{canvasEl.clipBottom ?? 0}px</span></div>
+                        <input type="range" min="0" max="100" value={canvasEl.clipBottom ?? 0}
+                          onChange={(e) => onUpdateCanvasElement?.(canvasEl.id, { clipBottom: parseInt(e.target.value) })}
+                          className="w-full accent-rose-400 cursor-pointer" />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-[9px] text-zinc-500 font-mono"><span>Left</span><span className="text-zinc-300">{canvasEl.clipLeft ?? 0}px</span></div>
+                        <input type="range" min="0" max="100" value={canvasEl.clipLeft ?? 0}
+                          onChange={(e) => onUpdateCanvasElement?.(canvasEl.id, { clipLeft: parseInt(e.target.value) })}
+                          className="w-full accent-rose-400 cursor-pointer" />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-[9px] text-zinc-500 font-mono"><span>Right</span><span className="text-zinc-300">{canvasEl.clipRight ?? 0}px</span></div>
+                        <input type="range" min="0" max="100" value={canvasEl.clipRight ?? 0}
+                          onChange={(e) => onUpdateCanvasElement?.(canvasEl.id, { clipRight: parseInt(e.target.value) })}
+                          className="w-full accent-rose-400 cursor-pointer" />
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="pt-1 border-t border-zinc-800">
                     <label className="text-[10px] font-mono text-zinc-400 block mb-1">Glow</label>
                     <div className="grid grid-cols-2 gap-2">
