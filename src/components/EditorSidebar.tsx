@@ -528,7 +528,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     className={`w-9 h-8 rounded-lg border text-xs font-black transition-all cursor-pointer flex items-center justify-center ${
                       isBold
                         ? 'text-black shadow-sm'
-                        : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800 hover:text-white'
+                        : isDark ? 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800 hover:text-white' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 hover:text-slate-900'
                     }`}
                     style={isBold ? {backgroundColor: accent, borderColor: accent} : {}}
                     title="Toggle Bold"
@@ -544,7 +544,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     className={`w-9 h-8 rounded-lg border text-xs font-black transition-all cursor-pointer flex items-center justify-center ${
                       isItalic
                         ? 'text-black shadow-sm'
-                        : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800 hover:text-white'
+                        : isDark ? 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800 hover:text-white' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 hover:text-slate-900'
                     }`}
                     style={isItalic ? {backgroundColor: accent, borderColor: accent} : {}}
                     title="Toggle Italic"
@@ -560,7 +560,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     className={`w-9 h-8 rounded-lg border text-xs font-black transition-all cursor-pointer flex items-center justify-center ${
                       isUnderline
                         ? 'text-black shadow-sm'
-                        : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800 hover:text-white'
+                        : isDark ? 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800 hover:text-white' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 hover:text-slate-900'
                     }`}
                     style={isUnderline ? {backgroundColor: accent, borderColor: accent} : {}}
                     title="Toggle Underline"
@@ -582,7 +582,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                           onUpdateText('global', 'customElementStyles', allStyles);
                         }
                       }}
-                      className="px-2 h-8 rounded-lg border border-zinc-800 bg-zinc-900 text-[11px] text-zinc-500 hover:text-red-400 transition-colors cursor-pointer font-mono shrink-0"
+                      className={`px-2 h-8 rounded-lg border text-[11px] transition-colors cursor-pointer font-mono shrink-0 ${isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:text-red-400' : 'border-slate-200 bg-white text-slate-500 hover:text-red-600'}`}
                       title="Clear all text styles"
                       aria-label="Clear all text styles"
                     >
@@ -651,7 +651,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       className={`px-2 py-1.5 rounded text-[10px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
                         currentBg === preset.value
                           ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
-                          : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                          : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white' : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                       }`}
                     >
                       {preset.label}
@@ -707,7 +707,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                           zIndex: 5,
                         });
                       }}
-                      className="w-full py-2 px-3 text-xs font-mono rounded-lg border border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white hover:border-[#ccff00] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      className={`w-full py-2 px-3 text-xs font-mono rounded-lg border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${isDark ? 'border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white hover:border-[#ccff00]' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 hover:border-emerald-500'}`}
                     >
                       <span>✂️</span> Detach Background Box
                     </button>
@@ -774,7 +774,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       className={`px-2 py-1.5 rounded text-[11px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
                         currentTextColor === preset.value
                           ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
-                          : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                          : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white' : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                       }`}
                     >
                       {preset.label}
@@ -847,7 +847,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     <button
                       type="button"
                       onClick={() => handleFontChange(undefined)}
-                      className="px-2 py-1 bg-zinc-900 hover:bg-zinc-800 text-[11px] border border-zinc-805 text-red-400 rounded-lg shrink-0 cursor-pointer font-bold"
+                      className={`px-2 py-1 text-[11px] border rounded-lg shrink-0 cursor-pointer font-bold ${isDark ? 'bg-zinc-900 hover:bg-zinc-800 border-zinc-805 text-red-400' : 'bg-white hover:bg-slate-100 border-slate-200 text-red-600'}`}
                     >
                       Clear
                     </button>
@@ -911,7 +911,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       className={`px-2 py-1.5 rounded text-[11px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
                         currentAccentColor === preset.value
                           ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
-                          : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                          : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white' : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                       }`}
                     >
                       {preset.label}
@@ -984,7 +984,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       className={`px-2 py-1.5 rounded text-[11px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
                         currentGlowColor === preset.value
                           ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
-                          : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                          : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white' : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                       }`}
                     >
                       {preset.label}
@@ -1070,7 +1070,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       className={`px-2 py-1.5 rounded text-[11px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
                         (!isActive && preset.shadow === undefined) || (isActive && shadow.color === preset.shadow?.color)
                           ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
-                          : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                          : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white' : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                       }`}
                     >
                       {preset.label}
@@ -1228,7 +1228,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       className={`px-2 py-1.5 rounded text-[11px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
                         (!isActive && preset.label === 'Off') || (isActive && JSON.stringify(grad.colors) === JSON.stringify(preset.colors))
                           ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
-                          : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                          : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white' : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                       }`}
                     >
                       {preset.label}
@@ -1242,7 +1242,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       <select
                         value={grad.type}
                         onChange={(e) => handleGradientChange({ ...grad, type: e.target.value as 'linear' | 'radial' })}
-                        className="flex-1 rounded-lg border p-1.5 text-[11px] font-mono bg-zinc-950 text-zinc-300 border-zinc-800"
+                        className={`flex-1 rounded-lg border p-1.5 text-[11px] font-mono ${isDark ? 'bg-zinc-950 text-zinc-300 border-zinc-800' : 'bg-white text-slate-700 border-slate-200'}`}
                       >
                         <option value="linear">Linear</option>
                         <option value="radial">Radial</option>
@@ -1705,7 +1705,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                         <select
                           value={layer.themeId}
                           onChange={(e) => onUpdateBackgroundLayer?.(i, { themeId: e.target.value as ThemeId })}
-                          className="flex-1 rounded border p-1 text-[8px] font-mono bg-zinc-950 text-zinc-300 border-zinc-800"
+                          className={`flex-1 rounded border p-1 text-[8px] font-mono ${isDark ? 'bg-zinc-950 text-zinc-300 border-zinc-800' : 'bg-white text-slate-700 border-slate-200'}`}
                         >
                           {(Object.keys(COMPILATION_THEMES) as ThemeId[]).map((tid) => (
                             <option key={tid} value={tid}>{COMPILATION_THEMES[tid].name}</option>
@@ -1732,7 +1732,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                         <select
                           value={layer.blendMode || 'normal'}
                           onChange={(e) => onUpdateBackgroundLayer?.(i, { blendMode: e.target.value })}
-                          className="flex-1 rounded border p-1 text-[8px] font-mono bg-zinc-950 text-zinc-300 border-zinc-800"
+                          className={`flex-1 rounded border p-1 text-[8px] font-mono ${isDark ? 'bg-zinc-950 text-zinc-300 border-zinc-800' : 'bg-white text-slate-700 border-slate-200'}`}
                         >
                           {['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion'].map((m) => (
                             <option key={m} value={m}>{m}</option>
@@ -1811,7 +1811,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       const first = BACKGROUND_DECORATIONS.find(d => d.id !== 'none');
                       onUpdateAppState?.({ backgroundDecoration: first?.id ?? 'none' });
                     }}
-                    className="w-full py-1.5 px-3 text-[10px] font-mono rounded-lg border border-dashed border-zinc-700 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800 hover:text-white hover:border-[#ccff00] transition-all cursor-pointer"
+                    className={`w-full py-1.5 px-3 text-[10px] font-mono rounded-lg border border-dashed transition-all cursor-pointer ${isDark ? 'border-zinc-700 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800 hover:text-white hover:border-[#ccff00]' : 'border-slate-300 bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-900 hover:border-emerald-500'}`}
                   >
                     + Add Decoration Pattern
                   </button>
