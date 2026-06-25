@@ -121,8 +121,20 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   // High-fidelity tab identifier: pages, design, photo, editor
   const [activeTab, setActiveTab] = useState<'pages' | 'design' | 'photo' | 'editor' | 'elements'>('pages');
 
+  // Theme-aware accent color (lime for dark, emerald for light so it's visible)
+  const accent = isDark ? '#ccff00' : '#059669';
+  const accentBg = isDark ? 'bg-[#ccff00]/10' : 'bg-emerald-50';
+  const accentBorder = isDark ? 'border-[#ccff00]' : 'border-emerald-600';
+  const accentText = isDark ? 'text-[#ccff00]' : 'text-emerald-700';
+  const accentLight = isDark ? 'border-[#ccff00]/30' : 'border-emerald-300';
+
   // Theme-aware class helpers
   const s = {
+    accent,
+    accentBg,
+    accentBorder,
+    accentText,
+    accentLight,
     aside: `w-full lg:w-96 p-5 flex flex-col gap-5 overflow-y-auto shrink-0 select-none border-r lg:border-r-0 ${isDark ? 'bg-zinc-900 border-zinc-800 text-zinc-300' : 'bg-white border-slate-200 text-slate-700'}`,
     panel: `rounded-xl border ${isDark ? 'bg-zinc-950/50 border-zinc-800/80' : 'bg-white border-slate-200 shadow-sm'}`,
     panelSolid: `rounded-xl border ${isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-slate-200 shadow-sm'}`,
@@ -132,23 +144,24 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     textMuted: isDark ? 'text-zinc-400' : 'text-slate-500',
     tabBar: `grid grid-cols-5 gap-1 p-1 rounded-xl border shadow-inner ${isDark ? 'bg-zinc-950 border-zinc-855/80' : 'bg-slate-100 border-slate-200'}`,
     tabBtn: (sel: boolean) => sel
-      ? `py-2 px-1 rounded-lg text-[10px] font-bold transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${isDark ? 'bg-zinc-800 text-white border border-zinc-700 shadow-md scale-105' : 'bg-white text-slate-900 border border-slate-300 shadow-sm scale-105'}`
-      : `py-2 px-1 rounded-lg text-[10px] font-bold transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${isDark ? 'text-zinc-400 hover:text-white hover:bg-zinc-900/50' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`,
+      ? `py-2 px-1 rounded-lg text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${isDark ? 'bg-zinc-800 text-white border border-zinc-700 shadow-md scale-105' : 'bg-white text-slate-900 border border-slate-300 shadow-sm scale-105'}`
+      : `py-2 px-1 rounded-lg text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${isDark ? 'text-zinc-400 hover:text-white hover:bg-zinc-900/50' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`,
     pageBtn: (sel: boolean) => sel
-      ? `w-full text-left p-2.5 rounded-xl border text-xs transition-all cursor-pointer flex justify-between items-center bg-[#ccff00]/10 border-[#ccff00] text-[#ccff00] font-black shadow-sm`
-      : `w-full text-left p-2.5 rounded-xl border text-xs transition-all cursor-pointer flex justify-between items-center ${isDark ? 'bg-zinc-950 border-zinc-800 hover:bg-zinc-850 text-zinc-300' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'}`,
+      ? `w-full text-left p-2.5 rounded-xl border text-sm transition-all cursor-pointer flex justify-between items-center ${accentBg} ${accentBorder} ${accentText} font-black shadow-sm`
+      : `w-full text-left p-2.5 rounded-xl border text-sm transition-all cursor-pointer flex justify-between items-center ${isDark ? 'bg-zinc-950 border-zinc-800 hover:bg-zinc-850 text-zinc-300' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'}`,
     layerBtn: (sel: boolean, hidden: boolean) => `flex items-center gap-1 rounded-lg border text-xs transition-colors ${hidden ? 'opacity-40' : ''} ${sel
-      ? 'bg-[#ccff00]/10 border-[#ccff00]'
+      ? `${accentBg} ${accentBorder}`
       : isDark ? 'bg-zinc-900/60 border-zinc-850 hover:bg-zinc-800' : 'bg-white border-slate-200 hover:bg-slate-100'
     }`,
     themeBtn: (sel: boolean) => sel
-      ? `w-full p-2.5 rounded-xl border flex items-center justify-between text-xs transition-all cursor-pointer border-[#ccff00] bg-zinc-950 shadow-sm`
+      ? `w-full p-2.5 rounded-xl border flex items-center justify-between text-xs transition-all cursor-pointer ${accentBorder} ${isDark ? 'bg-zinc-950' : 'bg-white'} shadow-sm`
       : `w-full p-2.5 rounded-xl border flex items-center justify-between text-xs transition-all cursor-pointer ${isDark ? 'border-zinc-800 bg-zinc-950 hover:bg-zinc-850' : 'border-slate-200 bg-white hover:bg-slate-50'}`,
-    input: `w-full rounded-lg border p-2.5 text-xs font-medium focus:ring-1 focus:ring-[#ccff00] focus:outline-none ${isDark ? 'bg-zinc-950 text-white border-zinc-800' : 'bg-white text-slate-900 border-slate-200'}`,
-    textarea: `w-full rounded-lg border p-2.5 text-xs focus:ring-1 focus:ring-[#ccff00] focus:outline-none font-medium leading-relaxed ${isDark ? 'bg-zinc-950 text-white border-zinc-800' : 'bg-white text-slate-900 border-slate-200'}`,
-    badgeDefault: (active: boolean) => `px-2 py-1 rounded text-[9px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${active ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm' : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white' : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900'}`,
+    input: `w-full rounded-lg border p-2.5 text-sm font-medium focus:ring-1 focus:ring-[${accent}] focus:outline-none ${isDark ? 'bg-zinc-950 text-white border-zinc-800' : 'bg-white text-slate-900 border-slate-200'}`,
+    textarea: `w-full rounded-lg border p-2.5 text-sm focus:ring-1 focus:ring-[${accent}] focus:outline-none font-medium leading-relaxed ${isDark ? 'bg-zinc-950 text-white border-zinc-800' : 'bg-white text-slate-900 border-slate-200'}`,
+    badgeDefault: (active: boolean) => `px-2 py-1 rounded text-xs font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${active ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm' : isDark ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white' : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900'}`,
     divider: isDark ? 'border-zinc-800' : 'border-slate-200',
     dividerLight: isDark ? 'border-zinc-805/55' : 'border-slate-200/70',
+    btnPrimary: `px-3 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer flex items-center justify-center gap-1.5 ${isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700 border-zinc-700' : 'bg-white text-slate-800 hover:bg-slate-50 hover:text-slate-900 border-slate-200 shadow-sm'}`,
   };
 
   const activeTheme = COMPILATION_THEMES[state.currentTheme];
@@ -370,9 +383,9 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     return (
       <div className="space-y-4">
         {/* Selected Layer Info */}
-        <div className="bg-[#ccff00]/10 border border-[#ccff00]/30 rounded-xl p-4.5 space-y-4 animate-fadeIn">
-          <div className={`flex justify-between items-center p-1.5 rounded-lg border ${isDark ? 'bg-black/20 border-[#ccff00]/10' : 'bg-black/5 border-[#ccff00]/20'}`}>
-            <span className="text-[9px] font-mono uppercase bg-[#ccff00] font-extrabold tracking-wide text-black px-2 py-0.5 rounded shadow-sm">
+        <div className="rounded-xl p-4 space-y-4 animate-fadeIn" style={{backgroundColor: isDark ? `${accent}1A` : `${accent}0D`, borderColor: isDark ? `${accent}4D` : `${accent}4D`, borderWidth: 1}}>
+          <div className={`flex justify-between items-center p-1.5 rounded-lg border ${isDark ? 'bg-black/20' : 'bg-black/5'}`} style={{borderColor: isDark ? `${accent}1A` : `${accent}33`}}>
+            <span className="text-xs font-mono uppercase font-extrabold tracking-wide text-black px-2 py-0.5 rounded shadow-sm" style={{backgroundColor: accent}}>
               Layer: {label}
             </span>
             <button 
@@ -404,6 +417,68 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                   className={s.input}
                 />
               )}
+            </div>
+          )}
+
+          {/* 🚀 SHIFT & RESIZE - MOVED TO TOP FOR QUICK ACCESS (sticky within the editor) */}
+          {field !== '__photo__' && (
+            <div className="sticky top-0 z-10 pt-2 pb-2 -mx-0.5 px-0.5 rounded-lg" style={{
+              background: isDark ? 'rgba(24,24,27,0.95)' : 'rgba(255,255,255,0.95)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            }}>
+              <div className="border border-dashed border-zinc-700/50 rounded-lg p-3 space-y-3 bg-black/20">
+                <div className="flex justify-between items-center text-xs text-zinc-400 font-bold uppercase tracking-wider">
+                  <span>📐 Position & Size</span>
+                  <button
+                    type="button"
+                    onClick={handleResetTransform}
+                    className="text-[10px] text-amber-400 hover:underline cursor-pointer font-semibold"
+                  >
+                    Reset
+                  </button>
+                </div>
+                {/* Size slider */}
+                <div>
+                  <div className="flex justify-between text-[10px] mb-1 text-zinc-400 uppercase font-mono">
+                    <span>Scale</span>
+                    <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{Math.round(transform.scale * 100)}%</span>
+                  </div>
+                  <input type="range" id={`scale-${elementId}`} min="0.4" max="2.5" step="0.05" value={transform.scale}
+                    onChange={(e) => handleScaleChange(parseFloat(e.target.value))}
+                    className="w-full accent-[#ccff00] cursor-pointer" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <div className="flex justify-between text-[10px] mb-1 text-zinc-400 uppercase font-mono">
+                      <span>X</span>
+                      <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{transform.x}px</span>
+                    </div>
+                    <input type="range" id={`shift-x-${elementId}`} min="-200" max="200" step="1" value={transform.x}
+                      onChange={(e) => handleXChange(parseInt(e.target.value))}
+                      className="w-full accent-cyan-400 cursor-pointer" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-[10px] mb-1 text-zinc-400 uppercase font-mono">
+                      <span>Y</span>
+                      <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{transform.y ?? 0}px</span>
+                    </div>
+                    <input type="range" id={`shift-y-${elementId}`} min="-250" max="250" step="1" value={transform.y ?? 0}
+                      onChange={(e) => handleYChange(parseInt(e.target.value))}
+                      className="w-full accent-amber-400 cursor-pointer" />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-[10px] mb-1 text-zinc-400 uppercase font-mono">
+                    <span>Rotation</span>
+                    <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{Math.round(transform.rotation ?? 0)}°</span>
+                  </div>
+                  <input type="range" id={`rotation-${elementId}`} min="0" max="360" step="1"
+                    value={transform.rotation ?? 0}
+                    onChange={(e) => handleRotationChange(parseInt(e.target.value))}
+                    className="w-full accent-purple-400 cursor-pointer" />
+                </div>
+              </div>
             </div>
           )}
 
@@ -441,9 +516,9 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
             return (
               <details open={isBold || isItalic || isUnderline} className="pt-1.5 pb-1 border-t border-zinc-805/50">
-                <summary className="text-[9px] text-zinc-500 uppercase tracking-wider font-bold block mb-1.5 cursor-pointer list-none flex items-center justify-between">
+                <summary className="text-xs text-zinc-400 uppercase tracking-wider font-bold block mb-1.5 cursor-pointer list-none flex items-center justify-between">
                   <span>Text Style</span>
-                  <span className="text-zinc-600 text-[10px]">+</span>
+                  <span className="text-zinc-500 text-[11px]">▸</span>
                 </summary>
                 <div className="flex gap-1">
                   {/* Bold Toggle */}
@@ -452,9 +527,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     onClick={() => toggleStyle('bold')}
                     className={`w-9 h-8 rounded-lg border text-xs font-black transition-all cursor-pointer flex items-center justify-center ${
                       isBold
-                        ? 'bg-[#ccff00] text-black border-[#ccff00] shadow-sm'
+                        ? 'text-black shadow-sm'
                         : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800 hover:text-white'
                     }`}
+                    style={isBold ? {backgroundColor: accent, borderColor: accent} : {}}
                     title="Toggle Bold"
                     aria-label="Toggle Bold"
                   >
@@ -467,9 +543,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     onClick={() => toggleStyle('italic')}
                     className={`w-9 h-8 rounded-lg border text-xs font-black transition-all cursor-pointer flex items-center justify-center ${
                       isItalic
-                        ? 'bg-[#ccff00] text-black border-[#ccff00] shadow-sm'
+                        ? 'text-black shadow-sm'
                         : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800 hover:text-white'
                     }`}
+                    style={isItalic ? {backgroundColor: accent, borderColor: accent} : {}}
                     title="Toggle Italic"
                     aria-label="Toggle Italic"
                   >
@@ -482,9 +559,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     onClick={() => toggleStyle('underline')}
                     className={`w-9 h-8 rounded-lg border text-xs font-black transition-all cursor-pointer flex items-center justify-center ${
                       isUnderline
-                        ? 'bg-[#ccff00] text-black border-[#ccff00] shadow-sm'
+                        ? 'text-black shadow-sm'
                         : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800 hover:text-white'
                     }`}
+                    style={isUnderline ? {backgroundColor: accent, borderColor: accent} : {}}
                     title="Toggle Underline"
                     aria-label="Toggle Underline"
                   >
@@ -534,9 +612,13 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             };
 
             return (
-              <div className="pt-3.5 border-t border-zinc-800/50 space-y-2">
+              <details className="pt-3.5 border-t border-zinc-800/50 space-y-2">
+                <summary className="text-xs text-zinc-400 uppercase font-bold cursor-pointer list-none flex items-center justify-between">
+                  <span>Background</span>
+                  <span className="text-[10px] font-mono text-zinc-500">{currentBg === undefined ? 'Theme Default' : currentBg === 'none' ? 'Transparent' : 'Custom'}</span>
+                </summary>
+                <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-zinc-400 block uppercase font-bold text-left">Text Block Background</span>
                   <span className="text-[9px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
                     {currentBg === undefined ? 'Theme Default' : currentBg === 'none' ? 'None (Transparent)' : currentBg}
                   </span>
@@ -566,7 +648,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       key={preset.label}
                       type="button"
                       onClick={() => handleBgChange(preset.value)}
-                      className={`px-2 py-1 rounded text-[9px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
+                      className={`px-2 py-1.5 rounded text-[10px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
                         currentBg === preset.value
                           ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
                           : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
@@ -581,7 +663,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     <button
                       type="button"
                       onClick={() => handleBgChange(undefined)}
-                      className="ml-auto text-[9px] text-red-500 hover:text-red-400 underline font-mono shrink-0 cursor-pointer font-bold"
+                      className="ml-auto text-[10px] text-red-500 hover:text-red-400 underline font-mono shrink-0 cursor-pointer font-bold"
                     >
                       Reset
                     </button>
@@ -625,14 +707,15 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                           zIndex: 5,
                         });
                       }}
-                      className="w-full py-1.5 px-3 text-[10px] font-mono rounded-lg border border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white hover:border-[#ccff00] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      className="w-full py-2 px-3 text-xs font-mono rounded-lg border border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white hover:border-[#ccff00] transition-all cursor-pointer flex items-center justify-center gap-1.5"
                     >
                       <span>✂️</span> Detach Background Box
                     </button>
                     <p className="text-[8px] text-zinc-500 mt-1 leading-tight">Creates a separate box element with this background. Now you can move text &amp; background independently!</p>
                   </div>
                 )}
-              </div>
+                </div>
+              </details>
             );
           })()}
 
@@ -654,9 +737,13 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             };
 
             return (
-              <div className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+              <details className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+                <summary className="text-xs text-zinc-400 uppercase font-bold cursor-pointer list-none flex items-center justify-between">
+                  <span>Text Color</span>
+                  <span className="text-[10px] font-mono text-zinc-500">{currentTextColor === undefined ? 'Default' : 'Custom'}</span>
+                </summary>
+                <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-zinc-400 block uppercase font-bold text-left">Main Text Color</span>
                   <span className="text-[9px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
                     {currentTextColor === undefined ? 'Theme Default' : currentTextColor}
                   </span>
@@ -698,13 +785,14 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     <button
                       type="button"
                       onClick={() => handleTextColorChange(undefined)}
-                      className="ml-auto text-[9px] text-red-500 hover:text-red-400 underline font-mono shrink-0 cursor-pointer font-bold"
+                      className="ml-auto text-[10px] text-red-500 hover:text-red-400 underline font-mono shrink-0 cursor-pointer font-bold"
                     >
                       Reset
                     </button>
                   )}
                 </div>
-              </div>
+                </div>
+              </details>
             );
           })()}
 
@@ -727,9 +815,9 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
             return (
               <details open={!!currentFont} className="pt-3.5 border-t border-zinc-805/50 space-y-2">
-                <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
-                  <span>Font Face / Style Override</span>
-                  <span className="text-zinc-600 text-[10px]">+</span>
+                <summary className="text-xs text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
+                  <span>Font Override</span>
+                  <span className="text-zinc-500 text-[11px]">▸</span>
                 </summary>
                 <div className="flex gap-2">
                   <select
@@ -788,9 +876,9 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
             return (
               <details open={currentAccentColor !== undefined} className="pt-3.5 border-t border-zinc-805/50 space-y-2">
-                <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
-                  <span>Accent / Border Highlight Color</span>
-                  <span className="text-zinc-600 text-[10px]">+</span>
+                <summary className="text-xs text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
+                  <span>Accent Color</span>
+                  <span className="text-zinc-500 text-[11px]">▸</span>
                 </summary>
                 <div className="flex justify-between items-center">
                   <span className="text-[9px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
@@ -834,7 +922,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     <button
                       type="button"
                       onClick={() => handleAccentColorChange(undefined)}
-                      className="ml-auto text-[9px] text-red-500 hover:text-red-400 underline font-mono shrink-0 cursor-pointer font-bold"
+                      className="ml-auto text-[10px] text-red-500 hover:text-red-400 underline font-mono shrink-0 cursor-pointer font-bold"
                     >
                       Reset
                     </button>
@@ -861,9 +949,9 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
             return (
               <details open={currentGlowColor !== undefined} className="pt-3.5 border-t border-zinc-805/50 space-y-2">
-                <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
-                  <span>Outer Glow</span>
-                  <span className="text-zinc-600 text-[10px]">+</span>
+                <summary className="text-xs text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
+                  <span>Glow</span>
+                  <span className="text-zinc-500 text-[11px]">▸</span>
                 </summary>
                 <div className="flex justify-between items-center">
                   <span className="text-[9px] font-mono text-zinc-200 uppercase bg-zinc-900 border border-zinc-850 px-1.5 py-0.5 rounded">
@@ -954,9 +1042,9 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
             return (
               <details open={isActive} className="pt-3.5 border-t border-zinc-805/50 space-y-2">
-                <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
+                <summary className="text-xs text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
                   <span>Shadow</span>
-                  <span className="text-zinc-600 text-[10px]">+</span>
+                  <span className="text-zinc-500 text-[11px]">▸</span>
                 </summary>
 
                 <div className="flex flex-wrap gap-1.5 items-center">
@@ -1120,9 +1208,9 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
             return (
               <details open={isActive} className="pt-3.5 border-t border-zinc-805/50 space-y-2">
-                <summary className="text-[10px] text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
-                  <span>Gradient Text</span>
-                  <span className="text-zinc-600 text-[10px]">+</span>
+                <summary className="text-xs text-zinc-400 uppercase font-bold text-left cursor-pointer list-none flex items-center justify-between">
+                  <span>Gradient</span>
+                  <span className="text-zinc-500 text-[11px]">▸</span>
                 </summary>
 
                 <div className="flex flex-wrap gap-1.5 items-center">
@@ -1239,7 +1327,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                   onClick={() => {
                     onDuplicateAnyElement(section, field, label, value);
                   }}
-                  className="flex-1 py-2 px-2 bg-teal-950/20 hover:bg-teal-900/30 border border-dashed border-teal-500/40 rounded-lg text-[9px] font-mono text-teal-400 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2 px-2 bg-teal-950/20 hover:bg-teal-900/30 border border-dashed border-teal-500/40 rounded-lg text-[11px] font-mono text-teal-400 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                   title="Create a fully editable duplicate of this element"
                   aria-label="Duplicate element"
                 >
@@ -1255,7 +1343,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       onRemoveDuplicatedElement(activeDup!.id);
                       onClearActiveElement();
                     }}
-                    className="flex-1 py-2 px-2 bg-red-950/20 hover:bg-red-900/30 border border-dashed border-red-500/40 rounded-lg text-[9px] font-mono text-red-400 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                    className="flex-1 py-2 px-2 bg-red-950/20 hover:bg-red-900/30 border border-dashed border-red-500/40 rounded-lg text-[11px] font-mono text-red-400 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                     title="Remove this duplicated element"
                     aria-label="Remove duplicate"
                   >
@@ -1268,7 +1356,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                       onToggleHideElement(`${section}.${field}`);
                       onClearActiveElement();
                     }}
-                    className={`flex-1 py-2 px-2 border border-dashed rounded-lg text-[9px] font-mono transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
+                    className={`flex-1 py-2 px-2 border border-dashed rounded-lg text-[11px] font-mono transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
                       isHidden
                         ? 'bg-emerald-950/20 border-emerald-500/40 text-emerald-400 hover:bg-emerald-900/30'
                         : 'bg-red-950/20 border-red-500/40 text-red-400 hover:bg-red-900/30'
@@ -1288,7 +1376,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             <button
               type="button"
               onClick={onExportElementStyle}
-              className="flex-1 py-2 px-2 border rounded-lg text-[9px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 bg-purple-950/20 hover:bg-purple-900/30 border-dashed border-purple-500/40 text-purple-400"
+              className="flex-1 py-2 px-2 border rounded-lg text-[11px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 bg-purple-950/20 hover:bg-purple-900/30 border-dashed border-purple-500/40 text-purple-400"
               title="Export this element's style (background, colors, font, glow, position) as a .json preset file"
             >
               <ArrowUpRight size={11} />
@@ -1297,7 +1385,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             <button
               type="button"
               onClick={onImportElementStyle}
-              className="flex-1 py-2 px-2 border rounded-lg text-[9px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 bg-indigo-950/20 hover:bg-indigo-900/30 border-dashed border-indigo-500/40 text-indigo-400"
+              className="flex-1 py-2 px-2 border rounded-lg text-[11px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 bg-indigo-950/20 hover:bg-indigo-900/30 border-dashed border-indigo-500/40 text-indigo-400"
               title="Import a .json style preset and apply it to this element"
             >
               <FolderOpen size={11} />
@@ -1305,101 +1393,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             </button>
           </div>
 
-          {/* Dynamic position and scale coordinates and slider overrides */}
-          <div className="pt-3 border-t border-zinc-800 space-y-3.5">
-            <div className="flex justify-between items-center text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
-              <span>📐 Shift & Resize</span>
-              <button
-                type="button"
-                onClick={handleResetTransform}
-                className="text-[9px] text-amber-400 hover:underline cursor-pointer font-semibold"
-              >
-                Reset Layout Position
-              </button>
-            </div>
 
-            {/* Size slider */}
-            <div>
-              <div className="flex justify-between text-[9px] mb-1.5 text-zinc-400 uppercase font-mono">
-                <span>Scale Size / text multiplier</span>
-                <span className="text-white font-bold">{Math.round(transform.scale * 100)}%</span>
-              </div>
-              <input
-                type="range"
-                id={`scale-${elementId}`}
-                min="0.4"
-                max="2.5"
-                step="0.05"
-                value={transform.scale}
-                onChange={(e) => handleScaleChange(parseFloat(e.target.value))}
-                className="w-full accent-[#ccff00] cursor-pointer"
-                aria-label="Scale size / text multiplier"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 pb-1">
-              {/* Position X slider */}
-              <div>
-                <div className="flex justify-between text-[9px] mb-1.5 text-zinc-400 uppercase font-mono">
-                  <span>Shift X (Align)</span>
-                  <span className="text-white font-bold">{transform.x}px</span>
-                </div>
-                <input
-                  type="range"
-                  id={`shift-x-${elementId}`}
-                  min="-200"
-                  max="200"
-                  step="1"
-                  value={transform.x}
-                  onChange={(e) => handleXChange(parseInt(e.target.value))}
-                  className="w-full accent-cyan-400 cursor-pointer"
-                  aria-label="Horizontal position offset"
-                />
-              </div>
-
-              {/* Position Y slider */}
-              <div>
-                <div className="flex justify-between text-[9px] mb-1.5 text-zinc-400 uppercase font-mono">
-                  <span>Shift Y (V-Align)</span>
-                  <span className="text-white font-bold">{transform.y ?? 0}px</span>
-                </div>
-                <input
-                  type="range"
-                  id={`shift-y-${elementId}`}
-                  min="-250"
-                  max="250"
-                  step="1"
-                  value={transform.y ?? 0}
-                  onChange={(e) => handleYChange(parseInt(e.target.value))}
-                  className="w-full accent-amber-400 cursor-pointer"
-                  aria-label="Vertical position offset"
-                />
-              </div>
-            </div>
-
-            {/* Rotation slider (0-360 degrees) */}
-            <div>
-              <div className="flex justify-between text-[9px] mb-1.5 text-zinc-400 uppercase font-mono">
-                <span>Rotation</span>
-                <span className="text-white font-bold">{Math.round(transform.rotation ?? 0)}°</span>
-              </div>
-              <input
-                type="range"
-                id={`rotation-${elementId}`}
-                min="0"
-                max="360"
-                step="1"
-                value={transform.rotation ?? 0}
-                onChange={(e) => handleRotationChange(parseInt(e.target.value))}
-                className="w-full accent-purple-400 cursor-pointer"
-                aria-label="Element rotation"
-              />
-            </div>
-            
-            <p className="text-[9px] text-zinc-400 leading-normal bg-black/40 p-2.5 rounded border border-zinc-850/60 font-mono">
-              💡 <b>Drag & drop support:</b> You can also left-click and drag this text directly on the canvas with your mouse!
-            </p>
-          </div>
         </div>
       </div>
     );
@@ -1540,7 +1534,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                   </span>
                 )}
               </div>
-              <span className="text-[9px] uppercase tracking-wide leading-none">{tab.label}</span>
+              <span className="text-xs uppercase tracking-wide leading-none">{tab.label}</span>
             </button>
           );
         })}

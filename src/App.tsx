@@ -821,8 +821,7 @@ export default function App() {
           {/* Undo / Redo buttons */}
           <button
             onClick={handleUndo}
-            disabled={!canUndo}
-            className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 text-xs font-bold ${
+            disabled={!canUndo}                className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 text-sm font-bold ${
               canUndo
                 ? isDark
                   ? 'bg-zinc-800 text-white border-zinc-700 hover:bg-zinc-700'
@@ -831,14 +830,13 @@ export default function App() {
             }`}
             title="Undo last action"
           >
-            <Undo2 size={13} className="stroke-[2.5]" />
-            <span className="text-[10px] font-mono font-bold leading-none">UNDO</span>
+            <Undo2 size={15} className="stroke-[2.5]" />
+            <span className="text-xs font-mono font-bold leading-none">UNDO</span>
           </button>
 
           <button
             onClick={handleRedo}
-            disabled={!canRedo}
-            className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 text-xs font-bold ${
+            disabled={!canRedo}                className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 text-sm font-bold ${
               canRedo
                 ? isDark
                   ? 'bg-zinc-800 text-white border-zinc-700 hover:bg-zinc-700'
@@ -847,14 +845,14 @@ export default function App() {
             }`}
             title="Redo undone action"
           >
-            <Redo2 size={13} className="stroke-[2.5]" />
-            <span className="text-[10px] font-mono font-bold leading-none">REDO</span>
+            <Redo2 size={15} className="stroke-[2.5]" />
+            <span className="text-xs font-mono font-bold leading-none">REDO</span>
           </button>
 
           {/* Tooltip Visibility Toggle Button */}
           <button
             onClick={() => handleUpdateText('global', 'hideDragTooltips', !state.hideDragTooltips)}
-            className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 text-xs font-bold ${
+            className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 text-sm font-bold ${
               state.hideDragTooltips
                 ? 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20'
                 : isDark
@@ -863,8 +861,8 @@ export default function App() {
             }`}
             title={`${state.hideDragTooltips ? 'Show' : 'Hide'} 'Drag / Edit' popups on hover`}
           >
-            <EyeOff size={13} className={state.hideDragTooltips ? "text-red-500" : isDark ? "text-[#ccff00]" : "text-teal-600"} />
-            <span className="text-[10px] font-mono font-bold leading-none">
+            <EyeOff size={15} className={state.hideDragTooltips ? "text-red-500" : isDark ? "text-[#ccff00]" : "text-teal-600"} />
+            <span className="text-xs font-mono font-bold leading-none">
               TOOLTIPS: {state.hideDragTooltips ? "OFF" : "ON"}
             </span>
           </button>
@@ -872,7 +870,7 @@ export default function App() {
           {/* WorkSpace UI Theme Lever Button */}
           <button
             onClick={() => handleUpdateText('global', 'appTheme', isDark ? 'light' : 'dark')}
-            className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 text-xs font-bold ${
+            className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 text-sm font-bold ${
               isDark 
                 ? 'bg-zinc-800 text-white border-zinc-700 hover:bg-zinc-700' 
                 : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-50 shadow-sm'
@@ -881,13 +879,13 @@ export default function App() {
           >
             {isDark ? (
               <>
-                <Sun size={13} className="text-yellow-400 fill-yellow-400" />
-                <span className="text-[10px] font-mono font-bold leading-none">LIGHT MODE</span>
+                <Sun size={15} className="text-yellow-400 fill-yellow-400" />
+                <span className="text-xs font-mono font-bold leading-none">LIGHT MODE</span>
               </>
             ) : (
               <>
-                <Moon size={13} className="text-indigo-600 fill-indigo-600/10" />
-                <span className="text-[10px] font-mono font-bold leading-none">DARK MODE</span>
+                <Moon size={15} className="text-indigo-600 fill-indigo-600/10" />
+                <span className="text-xs font-mono font-bold leading-none">DARK MODE</span>
               </>
             )}
           </button>
@@ -912,24 +910,23 @@ export default function App() {
           )}
 
           <button
-            onClick={handleDownloadHtml}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer flex items-center gap-2 ${
+            onClick={handleDownloadHtml}              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer flex items-center gap-2 ${
               isDark
                 ? 'bg-zinc-800 text-white hover:bg-zinc-700 hover:text-[#ccff00] border-zinc-700'
-                : 'bg-slate-100 text-slate-800 hover:bg-slate-200 hover:text-teal-700 border-slate-200'
+                : 'bg-white text-slate-800 hover:bg-slate-50 hover:text-emerald-700 border-slate-200 shadow-sm'
             }`}
             title="Download fully self-contained offline HTML file"
           >
-            <FileCode size={13} className="stroke-[2.5]" />
+            <FileCode size={15} className="stroke-[2.5]" />
             <span>Export Standalone HTML</span>
           </button>
 
           <button
             onClick={handlePrint}
-            className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white hover:opacity-90 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-sm"
+            className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white hover:opacity-90 px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer flex items-center gap-2 shadow-sm"
             title="Download or Print as PDF file"
           >
-            <Printer size={13} className="stroke-[2.5]" />
+            <Printer size={15} className="stroke-[2.5]" />
             <span>In-App PDF Print</span>
           </button>
           
