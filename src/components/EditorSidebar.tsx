@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { AppState, ThemeId, PageType, CanvasElement, ElementShadowConfig, GradientConfig, gradientToCss, shadowToCss, BackgroundLayer, SYMBOLS, BackgroundDecorationId, BACKGROUND_DECORATIONS, Template } from '../types';
+import { AppState, ThemeId, PageType, CanvasElement, ElementShadowConfig, GradientConfig, gradientToCss, shadowToCss, BackgroundLayer, SYMBOLS, SYMBOL_CATEGORIES, ICON_PRESETS, BackgroundDecorationId, BACKGROUND_DECORATIONS, Template } from '../types';
 import { COMPILATION_THEMES } from '../data';
 import { PREBUILT_TEMPLATES, TEMPLATE_CATEGORIES } from '../templates';
 import { 
@@ -24,7 +24,8 @@ import {
   Sparkles,
   HelpCircle,
   Square,
-  LayoutDashboard
+  LayoutDashboard,
+  Search
 } from 'lucide-react';
 
 interface EditorSidebarProps {
@@ -120,6 +121,8 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 }) => {
   const [designName, setDesignName] = useState('');
   const [templateCategory, setTemplateCategory] = useState<string>('all');
+  const [symbolCategory, setSymbolCategory] = useState<string>('all');
+  const [symbolSearch, setSymbolSearch] = useState<string>('');
   const isDark = appTheme === 'dark';
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -2576,25 +2579,148 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
               </button>
             </div>
 
-            {/* Symbol picker grid */}
+            {/* Symbol picker — categorized + searchable */}
             <div className="space-y-1.5">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Add Symbol</div>
-              <div className="grid grid-cols-6 gap-1">
-                {SYMBOLS.map((sym) => (
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Add Symbol</span>
+                <span className="text-[9px] font-mono text-zinc-500">{SYMBOLS.length} symbols</span>
+              </div>
+
+              {/* Search input */}
+              <div className="relative">
+                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <input
+                  type="text"
+                  placeholder="Search symbols..."
+                  value={symbolSearch}
+                  onChange={(e) => setSymbolSearch(e.target.value)}
+                  className={`w-full pl-7 pr-2 py-1.5 rounded-lg border text-[10px] font-mono focus:outline-none focus:ring-1 ${
+                    isDark
+                      ? 'bg-zinc-950 text-white border-zinc-800 focus:ring-[#ccff00]'
+                      : 'bg-white text-slate-900 border-slate-200 focus:ring-emerald-500'
+                  }`}
+                />
+                {symbolSearch && (
                   <button
-                    key={sym.char}
-                    type="button"
-                    onClick={() => onAddCanvasElement?.('symbol', { content: sym.char })}
-                    className="py-2 px-1 border border-dashed border-zinc-600 rounded-lg text-sm font-mono text-zinc-300 hover:border-[#ccff00] hover:text-[#ccff00] bg-zinc-900/40 hover:bg-zinc-800/40 transition-colors cursor-pointer text-center"
-                    title={sym.label}
+                    onClick={() => setSymbolSearch('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 cursor-pointer text-[10px]"
                   >
-                    {sym.char}
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              {/* Category filter chips */}
+              <div className="flex flex-wrap gap-1">
+                <button
+                  type="button"
+                  onClick={() => setSymbolCategory('all')}
+                  className={`px-1.5 py-0.5 rounded text-[8px] font-mono border transition-all cursor-pointer ${
+                    symbolCategory === 'all'
+                      ? 'border-[#ccff00] bg-[#ccff00]/10 text-[#ccff00]'
+                      : isDark
+                        ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                        : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  All
+                </button>
+                {SYMBOL_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setSymbolCategory(cat.id)}
+                    className={`px-1.5 py-0.5 rounded text-[8px] font-mono border transition-all cursor-pointer ${
+                      symbolCategory === cat.id
+                        ? 'border-[#ccff00] bg-[#ccff00]/10 text-[#ccff00]'
+                        : isDark
+                          ? 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                          : 'border-slate-200 bg-white text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    {cat.emoji} {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Filtered symbols grid */}
+              <div className="grid grid-cols-6 gap-1 max-h-40 overflow-y-auto pr-1">
+                {SYMBOLS
+                  .filter(s => (symbolCategory === 'all' || s.category === symbolCategory) &&
+                    (symbolSearch === '' || s.label.toLowerCase().includes(symbolSearch.toLowerCase()) || s.char.includes(symbolSearch)))
+                  .map((sym) => (
+                    <button
+                      key={sym.char + sym.category}
+                      type="button"
+                      onClick={() => onAddCanvasElement?.('symbol', { content: sym.char })}
+                      className="py-1.5 px-1 border border-dashed border-zinc-600 rounded-lg text-sm font-mono text-zinc-300 hover:border-[#ccff00] hover:text-[#ccff00] bg-zinc-900/40 hover:bg-zinc-800/40 transition-colors cursor-pointer text-center"
+                      title={sym.label}
+                    >
+                      {sym.char}
+                    </button>
+                  ))}
+                {SYMBOLS.filter(s => (symbolCategory === 'all' || s.category === symbolCategory) &&
+                  (symbolSearch === '' || s.label.toLowerCase().includes(symbolSearch.toLowerCase()) || s.char.includes(symbolSearch))).length === 0 && (
+                  <div className="col-span-6 text-[10px] font-mono text-zinc-500 italic text-center py-4">
+                    No symbols found
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ICON PRESETS */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-1.5">
+                <Sparkles size={12} className="text-amber-400" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Icon Presets</span>
+                <span className="ml-auto text-[9px] font-mono text-zinc-500">{ICON_PRESETS.length} sets</span>
+              </div>
+              <p className="text-[8px] font-mono text-zinc-500 leading-tight">
+                Click to add a pre-arranged set of icons to the canvas. Each icon is individually movable.
+              </p>
+              <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-1">
+                {ICON_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => {
+                      // Add each symbol in the preset as a separate canvas element
+                      preset.symbols.forEach((s, i) => {
+                        onAddCanvasElement?.('symbol', {
+                          content: s.char,
+                          fontSize: s.fontSize,
+                          x: 50 + (i * 45),
+                          y: 100 + (i * 2),
+                          opacity: 0.9,
+                          zIndex: 10,
+                        });
+                      });
+                    }}
+                    className={`p-2 rounded-lg border transition-all cursor-pointer text-left ${
+                      isDark
+                        ? 'bg-zinc-900/60 border-zinc-800 hover:border-amber-500/40 hover:bg-zinc-800/60'
+                        : 'bg-white border-slate-200 hover:border-amber-400/50 hover:bg-slate-50'
+                    }`}
+                    title={preset.description}
+                  >
+                    <div className="flex items-center gap-0.5 justify-center mb-1" style={{ minHeight: 28 }}>
+                      {preset.symbols.slice(0, 5).map((s, i) => (
+                        <span key={i} className={`${isDark ? 'text-zinc-300' : 'text-slate-600'}`} style={{ fontSize: s.fontSize - 6 }}>
+                          {s.char}
+                        </span>
+                      ))}
+                      {preset.symbols.length > 5 && (
+                        <span className="text-[8px] text-zinc-500 ml-0.5">+{preset.symbols.length - 5}</span>
+                      )}
+                    </div>
+                    <div className="text-[9px] font-bold truncate">{preset.name}</div>
+                    <div className="text-[7px] font-mono text-zinc-500 truncate">{preset.description}</div>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* List of existing canvas elements */}
+            {/* List of existing canvas elements */}{/* List of existing canvas elements */}
             <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Canvas Elements</div>
             <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
               {(state.canvasElements ?? []).length === 0 && (
