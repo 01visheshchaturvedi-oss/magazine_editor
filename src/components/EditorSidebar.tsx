@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { AppState, ThemeId, PageType, CanvasElement } from '../types';
+import { AppState, ThemeId, PageType, CanvasElement, ElementShadowConfig, GradientConfig, gradientToCss, shadowToCss, BackgroundLayer } from '../types';
 import { COMPILATION_THEMES } from '../data';
 import { 
   Paintbrush, 
@@ -46,6 +46,8 @@ interface EditorSidebarProps {
   onRemoveElementCopy?: (elementId: string, copyIndex: number) => void;
   onUpdateElementGlow?: (elementId: string, color: string | undefined) => void;
   onUpdateElementGlowWidth?: (elementId: string, width: number | undefined) => void;
+  onUpdateElementShadow?: (elementId: string, shadow: ElementShadowConfig | undefined) => void;
+  onUpdateElementGradient?: (elementId: string, gradient: GradientConfig | undefined) => void;
   onAddCanvasElement?: (type: 'text' | 'box', overrides?: Partial<CanvasElement>) => void;
   onUpdateCanvasElement?: (id: string, updates: Partial<CanvasElement>) => void;
   onRemoveCanvasElement?: (id: string) => void;
@@ -59,6 +61,12 @@ interface EditorSidebarProps {
   appTheme: 'light' | 'dark';
   onExportElementStyle: () => void;
   onImportElementStyle: () => void;
+  onUpdateDuplicateShadow?: (dupId: string, shadow: ElementShadowConfig | undefined) => void;
+  onUpdateDuplicateGradient?: (dupId: string, gradient: GradientConfig | undefined) => void;
+  onAddBackgroundLayer?: (themeId: ThemeId) => void;
+  onRemoveBackgroundLayer?: (index: number) => void;
+  onUpdateBackgroundLayer?: (index: number, updates: Partial<BackgroundLayer>) => void;
+  onSetBackgroundBlur?: (blur: number) => void;
 }
 
 export const EditorSidebar: React.FC<EditorSidebarProps> = ({
@@ -82,6 +90,8 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   onRemoveElementCopy,
   onUpdateElementGlow,
   onUpdateElementGlowWidth,
+  onUpdateElementShadow,
+  onUpdateElementGradient,
   onAddCanvasElement,
   onUpdateCanvasElement,
   onRemoveCanvasElement,
@@ -94,7 +104,13 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   savedDesigns,
   appTheme,
   onExportElementStyle,
-  onImportElementStyle
+  onImportElementStyle,
+  onUpdateDuplicateShadow,
+  onUpdateDuplicateGradient,
+  onAddBackgroundLayer,
+  onRemoveBackgroundLayer,
+  onUpdateBackgroundLayer,
+  onSetBackgroundBlur
 }) => {
   const [designName, setDesignName] = useState('');
   const isDark = appTheme === 'dark';
@@ -905,6 +921,295 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             );
           })()}
 
+          {/* Element Shadow control — hidden for photo */}
+          {field !== '__photo__' && (() => {
+            const currentShadow = activeDup
+              ? (activeDup.elementShadow || undefined)
+              : (state.elementShadows || {})[elementId];
+            const isActive = !!currentShadow;
+            const shadow: ElementShadowConfig = currentShadow || { color: '#000000', blur: 10, offsetX: 0, offsetY: 0, spread: 0, inset: false };
+            const isBox = field === '__box__' || field.startsWith('box.');
+
+            const handleShadowChange = (s: ElementShadowConfig | undefined) => {
+              if (activeDup) {
+                onUpdateDuplicateShadow?.(activeDup.id, s);
+              } else {
+                onUpdateElementShadow?.(elementId, s);
+              }
+            };
+
+            return (
+              <div className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] text-zinc-400 block uppercase font-bold text-left">Shadow</span>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 items-center">
+                  <input
+                    type="color"
+                    value={shadow.color}
+                    onChange={(e) => handleShadowChange({ ...shadow, color: e.target.value })}
+                    className="w-8 h-8 rounded border border-zinc-800 cursor-pointer bg-transparent shrink-0"
+                    title="Shadow Color"
+                    aria-label="Shadow color"
+                  />
+                  {[
+                    { label: 'Off', shadow: undefined },
+                    { label: 'Black', shadow: { color: '#000000', blur: 10, offsetX: 2, offsetY: 2, spread: 0, inset: false } },
+                    { label: 'Gray', shadow: { color: '#525252', blur: 10, offsetX: 2, offsetY: 2, spread: 0, inset: false } },
+                    { label: 'Violet', shadow: { color: '#c084fc', blur: 10, offsetX: 2, offsetY: 2, spread: 0, inset: false } },
+                    { label: 'Cyan', shadow: { color: '#00ffcc', blur: 10, offsetX: 2, offsetY: 2, spread: 0, inset: false } },
+                  ].map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => handleShadowChange(preset.shadow)}
+                      className={`px-2 py-1 rounded text-[9px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
+                        (!isActive && preset.shadow === undefined) || (isActive && shadow.color === preset.shadow?.color)
+                          ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
+                          : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+
+                {isActive && (
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-[9px] text-zinc-500">
+                      <span>Blur</span>
+                      <span>{shadow.blur}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="50"
+                      value={shadow.blur}
+                      onChange={(e) => handleShadowChange({ ...shadow, blur: Number(e.target.value) })}
+                      className="w-full accent-cyan-400 cursor-pointer"
+                      aria-label="Shadow blur"
+                    />
+
+                    <div className="flex justify-between text-[9px] text-zinc-500">
+                      <span>Offset X</span>
+                      <span>{shadow.offsetX}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="-20"
+                      max="20"
+                      value={shadow.offsetX}
+                      onChange={(e) => handleShadowChange({ ...shadow, offsetX: Number(e.target.value) })}
+                      className="w-full accent-cyan-400 cursor-pointer"
+                      aria-label="Shadow offset X"
+                    />
+
+                    <div className="flex justify-between text-[9px] text-zinc-500">
+                      <span>Offset Y</span>
+                      <span>{shadow.offsetY}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="-20"
+                      max="20"
+                      value={shadow.offsetY}
+                      onChange={(e) => handleShadowChange({ ...shadow, offsetY: Number(e.target.value) })}
+                      className="w-full accent-cyan-400 cursor-pointer"
+                      aria-label="Shadow offset Y"
+                    />
+
+                    {isBox && (
+                      <>
+                        <div className="flex justify-between text-[9px] text-zinc-500">
+                          <span>Spread</span>
+                          <span>{shadow.spread}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="20"
+                          value={shadow.spread || 0}
+                          onChange={(e) => handleShadowChange({ ...shadow, spread: Number(e.target.value) })}
+                          className="w-full accent-cyan-400 cursor-pointer"
+                          aria-label="Shadow spread"
+                        />
+
+                        <label className="flex items-center gap-2 text-[9px] text-zinc-400 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={shadow.inset || false}
+                            onChange={(e) => handleShadowChange({ ...shadow, inset: e.target.checked })}
+                            className="accent-cyan-400"
+                          />
+                          Inset shadow
+                        </label>
+                      </>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => handleShadowChange(undefined)}
+                      className="text-[9px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer font-bold"
+                    >
+                      Remove Shadow
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Element Gradient text control — hidden for photo and box elements */}
+          {field !== '__photo__' && field !== '__box__' && !field.startsWith('box.') && (() => {
+            const currentGradient = activeDup
+              ? (activeDup.elementGradient || undefined)
+              : (state.elementGradients || {})[elementId];
+            const isActive = !!currentGradient;
+            const grad: GradientConfig = currentGradient || { type: 'linear', angle: 0, colors: ['#ff0000', '#00ff00'] };
+
+            const handleGradientChange = (g: GradientConfig | undefined) => {
+              if (activeDup) {
+                onUpdateDuplicateGradient?.(activeDup.id, g);
+              } else {
+                onUpdateElementGradient?.(elementId, g);
+              }
+            };
+
+            const updateStopColor = (i: number, color: string) => {
+              const newColors = [...grad.colors];
+              if (i < newColors.length) newColors[i] = color;
+              handleGradientChange({ ...grad, colors: newColors });
+            };
+
+            const addStop = () => {
+              if (grad.colors.length >= 6) return;
+              const newColors = [...grad.colors, '#ffffff'];
+              handleGradientChange({ ...grad, colors: newColors });
+            };
+
+            const removeStop = (i: number) => {
+              if (grad.colors.length <= 2) return;
+              const newColors = grad.colors.filter((_, idx) => idx !== i);
+              handleGradientChange({ ...grad, colors: newColors });
+            };
+
+            const presets: { label: string; colors: string[]; type?: 'linear' | 'radial' }[] = [
+              { label: 'Off', colors: [] },
+              { label: 'Sunset', colors: ['#ff7e5f', '#feb47b'] },
+              { label: 'Ocean', colors: ['#2193b0', '#6dd5ed'] },
+              { label: 'Lime', colors: ['#ccff00', '#00ffcc'] },
+              { label: 'Violet', colors: ['#8b5cf6', '#ec4899'] },
+              { label: 'Gold', colors: ['#f59e0b', '#f97316'] },
+            ];
+
+            return (
+              <div className="pt-3.5 border-t border-zinc-805/50 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] text-zinc-400 block uppercase font-bold text-left">Gradient Text</span>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 items-center">
+                  {presets.map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => {
+                        if (preset.label === 'Off') {
+                          handleGradientChange(undefined);
+                        } else {
+                          handleGradientChange({ type: grad.type, angle: grad.angle, colors: [...preset.colors] });
+                        }
+                      }}
+                      className={`px-2 py-1 rounded text-[9px] font-mono border transition-all cursor-pointer hover:scale-105 shrink-0 ${
+                        (!isActive && preset.label === 'Off') || (isActive && JSON.stringify(grad.colors) === JSON.stringify(preset.colors))
+                          ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300 shadow-sm'
+                          : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+
+                {isActive && (
+                  <div className="space-y-1.5">
+                    <div className="flex gap-2 items-center">
+                      <select
+                        value={grad.type}
+                        onChange={(e) => handleGradientChange({ ...grad, type: e.target.value as 'linear' | 'radial' })}
+                        className="flex-1 rounded-lg border p-1.5 text-[9px] font-mono bg-zinc-950 text-zinc-300 border-zinc-800"
+                      >
+                        <option value="linear">Linear</option>
+                        <option value="radial">Radial</option>
+                      </select>
+                    </div>
+
+                    {grad.type === 'linear' && (
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-[9px] text-zinc-500">
+                          <span>Angle</span>
+                          <span>{grad.angle}°</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="360"
+                          value={grad.angle || 0}
+                          onChange={(e) => handleGradientChange({ ...grad, angle: Number(e.target.value) })}
+                          className="w-full accent-cyan-400 cursor-pointer"
+                          aria-label="Gradient angle"
+                        />
+                      </div>
+                    )}
+
+                    <div className="space-y-1">
+                      <span className="text-[9px] text-zinc-500 block">Color Stops</span>
+                      {grad.colors.map((c, i) => (
+                        <div key={i} className="flex items-center gap-1.5">
+                          <input
+                            type="color"
+                            value={c}
+                            onChange={(e) => updateStopColor(i, e.target.value)}
+                            className="w-7 h-7 rounded border border-zinc-800 cursor-pointer bg-transparent shrink-0"
+                          />
+                          <span className="text-[8px] font-mono text-zinc-500 w-4">{i + 1}</span>
+                          {grad.colors.length > 2 && (
+                            <button
+                              type="button"
+                              onClick={() => removeStop(i)}
+                              className="text-[9px] text-red-500 hover:text-red-400 font-mono cursor-pointer"
+                              title="Remove stop"
+                            >
+                              ×
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      {grad.colors.length < 6 && (
+                        <button
+                          type="button"
+                          onClick={addStop}
+                          className="text-[9px] text-cyan-400 hover:text-cyan-300 font-mono cursor-pointer"
+                        >
+                          + Add stop
+                        </button>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleGradientChange(undefined)}
+                      className="text-[9px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer font-bold"
+                    >
+                      Remove Gradient
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           {/* Duplicate & Hide/Remove action buttons — shown for ALL elements */}
           {(() => {
             const isDupEditor = !!activeDup;
@@ -1312,6 +1617,133 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     </button>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* Background Effects — multi-layer theme compositing with blur */}
+            <div className={`${s.panelSolid} p-4 space-y-3`}>
+              <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b ${s.divider} ${s.textPrimary}`}>
+                <Layers size={13} className="text-cyan-400" />
+                <span>Background Effects</span>
+              </span>
+
+              {/* Background blur slider */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-[9px] text-zinc-500">
+                  <span>Background Blur</span>
+                  <span>{state.backgroundBlur || 0}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="30"
+                  value={state.backgroundBlur || 0}
+                  onChange={(e) => onSetBackgroundBlur?.(Number(e.target.value))}
+                  className="w-full accent-cyan-400 cursor-pointer"
+                  aria-label="Background blur"
+                />
+                {(state.backgroundBlur || 0) > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => onSetBackgroundBlur?.(0)}
+                    className="text-[8px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer"
+                  >
+                    Reset Blur
+                  </button>
+                )}
+              </div>
+
+              {/* Background layers list */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-zinc-500 uppercase font-bold">Layers ({state.backgroundLayers?.length || 0}/4)</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const current = state.backgroundLayers || [];
+                      // Pick a theme that is not already in the layers
+                      const usedThemes = new Set(current.map(l => l.themeId));
+                      const available = (Object.keys(COMPILATION_THEMES) as ThemeId[]).find(t => !usedThemes.has(t)) || 'mint-teal';
+                      onAddBackgroundLayer?.(available);
+                    }}
+                    disabled={(state.backgroundLayers?.length || 0) >= 4}
+                    className="text-[9px] text-cyan-400 hover:text-cyan-300 disabled:text-zinc-600 disabled:cursor-not-allowed font-mono cursor-pointer"
+                  >
+                    + Add Layer
+                  </button>
+                </div>
+
+                {(state.backgroundLayers || []).map((layer, i) => {
+                  const thm = COMPILATION_THEMES[layer.themeId];
+                  return (
+                    <div key={i} className={`rounded-lg border p-2.5 space-y-1.5 ${isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-slate-200'}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: thm.colors.primary }} />
+                          <span className="text-[10px] font-mono text-zinc-400">{thm.name}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => onRemoveBackgroundLayer?.(i)}
+                          className="text-[9px] text-red-500 hover:text-red-400 font-mono cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      </div>
+
+                      <div className="flex gap-1.5 items-center">
+                        <select
+                          value={layer.themeId}
+                          onChange={(e) => onUpdateBackgroundLayer?.(i, { themeId: e.target.value as ThemeId })}
+                          className="flex-1 rounded border p-1 text-[8px] font-mono bg-zinc-950 text-zinc-300 border-zinc-800"
+                        >
+                          {(Object.keys(COMPILATION_THEMES) as ThemeId[]).map((tid) => (
+                            <option key={tid} value={tid}>{COMPILATION_THEMES[tid].name}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="flex gap-1.5 items-center">
+                        <span className="text-[8px] text-zinc-500 w-12">Opacity</span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={Math.round((layer.opacity ?? 1) * 100)}
+                          onChange={(e) => onUpdateBackgroundLayer?.(i, { opacity: Number(e.target.value) / 100 })}
+                          className="flex-1 accent-cyan-400 cursor-pointer"
+                          aria-label={`Layer ${i + 1} opacity`}
+                        />
+                        <span className="text-[8px] font-mono text-zinc-500 w-8 text-right">{Math.round((layer.opacity ?? 1) * 100)}%</span>
+                      </div>
+
+                      <div className="flex gap-1.5 items-center">
+                        <span className="text-[8px] text-zinc-500 w-12">Blend</span>
+                        <select
+                          value={layer.mixBlendMode || 'normal'}
+                          onChange={(e) => onUpdateBackgroundLayer?.(i, { mixBlendMode: e.target.value })}
+                          className="flex-1 rounded border p-1 text-[8px] font-mono bg-zinc-950 text-zinc-300 border-zinc-800"
+                        >
+                          {['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion'].map((m) => (
+                            <option key={m} value={m}>{m}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {(state.backgroundLayers || []).length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      (state.backgroundLayers || []).forEach((_, i) => onRemoveBackgroundLayer?.(0));
+                    }}
+                    className="text-[9px] text-red-500 hover:text-red-400 underline font-mono cursor-pointer"
+                  >
+                    Reset All Layers
+                  </button>
+                )}
               </div>
             </div>
 

@@ -1,4 +1,4 @@
-import { AppState, ThemeColors } from '../types';
+import { AppState, ThemeColors, ThemeId, ElementShadowConfig, GradientConfig, shadowToCss } from '../types';
 import { COMPILATION_THEMES } from '../data';
 
 export function getSvgIcon(iconName: string): string {
@@ -80,6 +80,24 @@ export function generateStandaloneHtml(state: AppState): string {
     if (customStyles.bold) extraStyles += ` font-weight: bold !important;`;
     if (customStyles.italic) extraStyles += ` font-style: italic !important;`;
     if (customStyles.underline) extraStyles += ` text-decoration: underline !important;`;
+
+    // Apply per-element shadow
+    const elementShadow = (state.elementShadows || {})[elementId];
+    if (elementShadow) {
+      const isTextField = true;
+      extraStyles += ` ${isTextField ? 'text-shadow' : 'box-shadow'}: ${shadowToCss(elementShadow, isTextField)} !important;`;
+    }
+
+    // Apply per-element gradient text
+    const elementGradient = (state.elementGradients || {})[elementId];
+    if (elementGradient) {
+      const colors = elementGradient.colors.join(', ');
+      if (elementGradient.type === 'radial') {
+        extraStyles += ` background: radial-gradient(circle, ${colors}) !important; background-clip: text !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;`;
+      } else {
+        extraStyles += ` background: linear-gradient(${elementGradient.angle || 0}deg, ${colors}) !important; background-clip: text !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;`;
+      }
+    }
 
     return `display: ${defaultDisplay}; transform: translate(${transform.x}px, ${transform.y}px) scale(${transform.scale}) rotate(${transform.rotation}deg); transform-origin: center;${extraStyles}`;
   };
@@ -629,72 +647,53 @@ export function generateStandaloneHtml(state: AppState): string {
     class="print-card relative w-full max-w-md aspect-[210/297] rounded-3xl overflow-hidden shadow-2xl border border-zinc-800 transition-all duration-300"
     style="aspect-ratio: 210 / 297; background-color: ${colors.background}; color: ${colors.textPrimary}; ${fonts.bodyStyle}"
   >
-    <!-- Background accents template styling -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-      ${state.currentTheme === 'neon-lime' ? `
-        <div class="absolute inset-0">
-          <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-          <div class="absolute top-20 right-0 w-96 h-96 bg-lime-400/10 rounded-full filter blur-[120px]"></div>
-        </div>
-      ` : ''}
-
-      ${state.currentTheme === 'warm-ivory' ? `
-        <div class="absolute inset-0">
-          <div class="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#991b1b]/5 to-transparent"></div>
-          <div class="absolute inset-0 bg-[radial-gradient(#991b1b08_1px,transparent_1px)] [background-size:16px_16px]"></div>
-        </div>
-      ` : ''}
-
-      ${state.currentTheme === 'midnight-space' ? `
-        <div class="absolute inset-0">
-          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(6,182,212,0.15),transparent_50%)]"></div>
-          <div class="absolute inset-0 bg-[linear-gradient(to_right,#0891b20a_1px,transparent_1px),linear-gradient(to_bottom,#0891b20a_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-        </div>
-      ` : ''}
-
-      ${state.currentTheme === 'professional-navy' ? `
-        <div class="absolute inset-0">
-          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(201,168,76,0.03)_0%,transparent_60%)]"></div>
-          <div class="absolute inset-0" style="background-image: linear-gradient(to_right,rgba(30,58,95,0.02)_1px,transparent_1px); background-size: 32px 32px;"></div>
-          <div class="absolute top-1/4 left-1/4 w-64 h-64 rounded-full border border-[#c9a84c]/10"></div>
-        </div>
-      ` : ''}
-
-      ${state.currentTheme === 'sage-academy' ? `
-        <div class="absolute inset-0">
-          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(45,106,79,0.04)_0%,transparent_50%)]"></div>
-          <div class="absolute inset-0" style="background-image: radial-gradient(rgba(45,106,79,0.03)_1px,transparent_1px); background-size: 20px 20px;"></div>
-        </div>
-      ` : ''}
-
-      ${state.currentTheme === 'burgundy-classic' ? `
-        <div class="absolute inset-0">
-          <div class="absolute inset-0" style="background: linear-gradient(180deg,rgba(128,0,32,0.04)_0%,transparent_40%,rgba(128,0,32,0.02)_100%);"></div>
-          <div class="absolute -top-10 -right-10 w-72 h-72 rounded-full border border-[#800020]/10"></div>
-          <div class="absolute -bottom-10 -left-10 w-72 h-72 rounded-full border border-[#800020]/8"></div>
-        </div>
-      ` : ''}
-
-      ${state.currentTheme === 'steel-professional' ? `
-        <div class="absolute inset-0">
-          <div class="absolute inset-0" style="background-image: linear-gradient(to_right,rgba(70,130,180,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(70,130,180,0.03)_1px,transparent_1px); background-size: 20px 20px;"></div>
-          <div class="absolute top-0 right-0 w-96 h-96 bg-[#4682b4]/5 rounded-full" style="filter: blur(100px);"></div>
-        </div>
-      ` : ''}
-
-      ${state.currentTheme === 'charcoal-amber' ? `
-        <div class="absolute inset-0">
-          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,140,0,0.04)_0%,transparent_60%)]"></div>
-          <div class="absolute inset-0" style="background-image: linear-gradient(45deg,rgba(51,65,85,0.04)_1px,transparent_1px); background-size: 24px 24px;"></div>
-        </div>
-      ` : ''}
-
-      ${state.currentTheme === 'ocean-clarity' ? `
-        <div class="absolute inset-0">
-          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,109,119,0.03)_0%,transparent_50%)]"></div>
-          <div class="absolute inset-0" style="background-image: linear-gradient(to_right,rgba(131,197,190,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(131,197,190,0.04)_1px,transparent_1px); background-size: 28px 28px;"></div>
-        </div>
-      ` : ''}
+    <!-- Background accents — multi-layer compositing -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none"${state.backgroundBlur && state.backgroundBlur > 0 ? ` style="filter: blur(${state.backgroundBlur}px);"` : ''}>
+      ${(() => {
+        const layers = (state.backgroundLayers && state.backgroundLayers.length > 0)
+          ? state.backgroundLayers
+          : [{ themeId: state.currentTheme, opacity: 1, mixBlendMode: 'normal' }];
+        return layers.map((layer) => {
+          const thId = layer.themeId;
+          const opacity = layer.opacity ?? 1;
+          const blendMode = layer.mixBlendMode || 'normal';
+          const style = `opacity: ${opacity}; mix-blend-mode: ${blendMode};`;
+          switch (thId) {
+            case 'neon-lime':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background-image:linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px);background-size:24px 24px"></div><div class="absolute top-20 right-0 w-96 h-96" style="background:rgba(163,230,53,0.1);border-radius:50%;filter:blur(120px)"></div></div>`;
+            case 'warm-ivory':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-x-0 top-0 h-40" style="background:linear-gradient(to bottom,rgba(153,27,27,0.05),transparent)"></div><div class="absolute inset-0" style="background-image:radial-gradient(rgba(153,27,27,0.03) 1px,transparent 1px);background-size:16px 16px"></div></div>`;
+            case 'midnight-space':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background:radial-gradient(ellipse at top,rgba(6,182,212,0.15),transparent 50%)"></div><div class="absolute inset-0" style="background-image:linear-gradient(to_right,rgba(8,145,178,0.04) 1px,transparent 1px),linear-gradient(to_bottom,rgba(8,145,178,0.04) 1px,transparent 1px);background-size:40px 40px"></div></div>`;
+            case 'retro-teal':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background-image:radial-gradient(rgba(17,94,89,0.08) 8%,transparent 8%);background-size:12px 12px"></div><div class="absolute inset-0" style="background:linear-gradient(to top right,rgba(245,158,11,0.05),rgba(13,148,136,0.1),transparent)"></div></div>`;
+            case 'royal-indigo':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background:linear-gradient(30deg,rgb(30,27,75) 20%,rgb(49,46,129) 50%,rgb(30,27,75) 80%)"></div><div class="absolute top-10 right-10 w-48 h-48" style="border-radius:50%;border:4px solid rgba(251,191,36,0.1)"></div></div>`;
+            case 'cyberpunk-sunset':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background:radial-gradient(ellipse at center,rgba(255,0,127,0.06) 0%,transparent 60%)"></div><div class="absolute top-10 right-10 w-48 h-48" style="background:rgba(255,0,127,0.1);border-radius:50%;filter:blur(80px)"></div></div>`;
+            case 'forest-emerald':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background:radial-gradient(ellipse at left,rgba(16,185,129,0.06) 0%,transparent 50%)"></div><div class="absolute inset-0" style="background-image:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(255,255,255,0.02) 40px,rgba(255,255,255,0.02) 41px)"></div></div>`;
+            case 'coral-charcoal':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background:radial-gradient(ellipse at bottom,rgba(255,107,107,0.05) 0%,transparent 50%)"></div><div class="absolute inset-0" style="background-image:linear-gradient(to right,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:32px 32px"></div></div>`;
+            case 'electric-violet':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background:radial-gradient(ellipse at top right,rgba(139,92,246,0.08) 0%,transparent 50%)"></div><div class="absolute inset-0" style="background-image:linear-gradient(45deg,rgba(139,92,246,0.03) 1px,transparent 1px);background-size:24px 24px"></div></div>`;
+            case 'professional-navy':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background:radial-gradient(ellipse at top right,rgba(201,168,76,0.03) 0%,transparent 60%)"></div><div class="absolute inset-0" style="background-image:linear-gradient(to right,rgba(30,58,95,0.02) 1px,transparent 1px);background-size:32px 32px"></div></div>`;
+            case 'sage-academy':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background:radial-gradient(ellipse at bottom left,rgba(45,106,79,0.04) 0%,transparent 50%)"></div><div class="absolute inset-0" style="background-image:radial-gradient(rgba(45,106,79,0.03) 1px,transparent 1px);background-size:20px 20px"></div></div>`;
+            case 'burgundy-classic':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background:linear-gradient(180deg,rgba(128,0,32,0.04) 0%,transparent 40%,rgba(128,0,32,0.02) 100%)"></div><div class="absolute -top-10 -right-10 w-72 h-72" style="border-radius:50%;border:1px solid rgba(128,0,32,0.1)"></div></div>`;
+            case 'steel-professional':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background-image:linear-gradient(to right,rgba(70,130,180,0.03) 1px,transparent 1px),linear-gradient(to bottom,rgba(70,130,180,0.03) 1px,transparent 1px);background-size:20px 20px"></div><div class="absolute top-0 right-0 w-96 h-96" style="background:rgba(70,130,180,0.05);border-radius:50%;filter:blur(100px)"></div></div>`;
+            case 'charcoal-amber':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background:radial-gradient(ellipse at center,rgba(255,140,0,0.04) 0%,transparent 60%)"></div><div class="absolute inset-0" style="background-image:linear-gradient(45deg,rgba(51,65,85,0.04) 1px,transparent 1px);background-size:24px 24px"></div></div>`;
+            case 'ocean-clarity':
+              return `<div class="absolute inset-0" style="${style}"><div class="absolute inset-0" style="background:radial-gradient(ellipse at top,rgba(0,109,119,0.03) 0%,transparent 50%)"></div><div class="absolute inset-0" style="background-image:linear-gradient(to right,rgba(131,197,190,0.04) 1px,transparent 1px),linear-gradient(to bottom,rgba(131,197,190,0.04) 1px,transparent 1px);background-size:28px 28px"></div></div>`;
+            default:
+              return `<div class="absolute inset-0" style="${style}"></div>`;
+          }
+        }).join('');
+      })()}
     </div>
 
     <!-- Page Content injection -->

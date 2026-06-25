@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppState, ThemeColors, CanvasElement } from '../types';
+import { AppState, ThemeColors, ThemeId, CanvasElement, ElementShadowConfig, GradientConfig, gradientToCss, shadowToCss } from '../types';
 import { 
   BookOpen, 
   MapPin, 
@@ -35,6 +35,8 @@ interface PageRendererProps {
   onUpdateDuplicateStyle?: (dupId: string, key: string, value: any) => void;
   onUpdateElementGlow?: (elementId: string, color: string | undefined) => void;
   onUpdateElementGlowWidth?: (elementId: string, width: number | undefined) => void;
+  onUpdateElementShadow?: (elementId: string, shadow: ElementShadowConfig | undefined) => void;
+  onUpdateElementGradient?: (elementId: string, gradient: GradientConfig | undefined) => void;
   onUpdateCanvasElement?: (id: string, updates: Partial<CanvasElement>) => void;
   onRemoveCanvasElement?: (id: string) => void;
   selectedCanvasId: string | null;
@@ -58,6 +60,8 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
   onUpdateDuplicateStyle,
   onUpdateElementGlow,
   onUpdateElementGlowWidth,
+  onUpdateElementShadow: _onUpdateElementShadow,
+  onUpdateElementGradient: _onUpdateElementGradient,
   onUpdateCanvasElement,
   onRemoveCanvasElement,
   selectedCanvasId,
@@ -286,10 +290,18 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
     const customBg = customBgs[elementId];
     const customStyles = (state.customElementStyles || {})[elementId] || {};
 
+    // Gradient support
+    const customGradient = (state.elementGradients || {})[elementId];
+    const gradientCss = customGradient ? gradientToCss(customGradient) : null;
+
+    // Shadow support
+    const customShadow = (state.elementShadows || {})[elementId];
+    const shadowCss = customShadow ? shadowToCss(customShadow, true) : null;
+
     // Check if this element is hidden for the current session
     const isHidden = !!(state.hiddenElements || {})[elementId];
 
-    const hasAnyOverride = customBg !== undefined || customTextColor !== undefined || customFont !== undefined || customAccent !== undefined || Object.keys(customStyles).length > 0;
+    const hasAnyOverride = customBg !== undefined || customTextColor !== undefined || customFont !== undefined || customAccent !== undefined || Object.keys(customStyles).length > 0 || gradientCss !== null;
 
     let processedChildren = children;
     if (hasAnyOverride && React.isValidElement(processedChildren)) {
@@ -298,7 +310,7 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
       if (customBg) {
         childClass = childClass.replace(/\b(bg-\S+|from-\S+|to-\S+|via-\S+)\b/g, '');
       }
-      if (customTextColor) {
+      if (customTextColor || gradientCss) {
         childClass = childClass.replace(/\b(text-\S+)\b/g, (match) => {
           if (match.match(/\btext-(xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl|left|right|center|justify|start|end)\b/)) {
             return match;
@@ -320,7 +332,13 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
       if (customBg !== undefined) {
         styleOverrides.backgroundColor = customBg === 'none' ? 'transparent' : customBg;
       }
-      if (customTextColor !== undefined) {
+      if (gradientCss) {
+        styleOverrides.background = gradientCss;
+        styleOverrides.backgroundClip = 'text';
+        (styleOverrides as any).WebkitBackgroundClip = 'text';
+        (styleOverrides as any).WebkitTextFillColor = 'transparent';
+        styleOverrides.color = 'transparent';
+      } else if (customTextColor !== undefined) {
         styleOverrides.color = customTextColor;
       }
       if (customFont !== undefined) {
@@ -358,12 +376,14 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
     const glowWidth = (state.elementGlowWidths || {})[elementId] ?? 15;
     const glowStyle = glowColor ? { filter: `drop-shadow(0 0 ${glowWidth}px ${glowColor})` } : {};
 
+    const shadowStyle = shadowCss ? { textShadow: shadowCss } : {};
+
     return (
       <div
         id={`editable-${section}-${field}`}
         onMouseDown={handlePointerDown}
         onTouchStart={handlePointerDown}
-        style={{ ...style, ...glowStyle, display: isHidden ? 'none' : undefined }}
+        style={{ ...style, ...glowStyle, ...shadowStyle, display: isHidden ? 'none' : undefined }}
         className={`group relative cursor-grab active:cursor-grabbing rounded transition-transform duration-75 hover:bg-primary/20 hover:ring-2 hover:ring-primary/60 p-0.5 ${
           isSelected ? "ring-2 ring-primary bg-primary/10" : ""
         } ${className}`}
@@ -390,7 +410,16 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
             const dupOverrides: React.CSSProperties = { ...origStyle };
             const dc = dup.customStyles || {};
             if (dup.customBackground) dupOverrides.backgroundColor = dup.customBackground === 'none' ? 'transparent' : dup.customBackground;
-            if (dup.customTextColor) dupOverrides.color = dup.customTextColor;
+            if (dup.customGradient) {
+              const gCss = gradientToCss(dup.customGradient);
+              dupOverrides.background = gCss;
+              dupOverrides.backgroundClip = 'text';
+              (dupOverrides as any).WebkitBackgroundClip = 'text';
+              (dupOverrides as any).WebkitTextFillColor = 'transparent';
+              dupOverrides.color = 'transparent';
+            } else if (dup.customTextColor) {
+              dupOverrides.color = dup.customTextColor;
+            }
             if (dup.customFont) {
               if (dup.customFont.startsWith('font-family:')) dupOverrides.fontFamily = dup.customFont.replace('font-family:', '');
               else if (dup.customFont === 'italic') dupOverrides.fontStyle = 'italic';
@@ -403,6 +432,7 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
             if (dc.bold) dupOverrides.fontWeight = 'bold';
             if (dc.italic) dupOverrides.fontStyle = 'italic';
             if (dc.underline) dupOverrides.textDecoration = 'underline';
+            const dupShadowCss = dup.customShadow ? shadowToCss(dup.customShadow, true) : null;
 
             const dupTf = dup.transform;
 
@@ -451,6 +481,7 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
                   transform: `scale(${dupTf.scale}) rotate(${dupTf.rotation ?? 0}deg)`,
                   transformOrigin: 'center',
                   zIndex: 25,
+                  ...(dupShadowCss ? { textShadow: dupShadowCss } : {}),
                 }}
                 className={`group cursor-grab active:cursor-grabbing rounded hover:ring-2 hover:ring-primary/60 p-0.5 ${
                   isDupSelected ? 'ring-2 ring-primary bg-primary/10' : ''
@@ -647,6 +678,24 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
       };
 
       const glowStyle = el.glowColor ? { filter: `drop-shadow(0 0 ${el.glowWidth ?? 15}px ${el.glowColor})` } : {};
+      const elShadowCss = el.shadow ? shadowToCss(el.shadow, el.type === 'text') : null;
+      const elGradientCss = el.gradient ? gradientToCss(el.gradient) : null;
+
+      const canvasTextStyle: React.CSSProperties = {};
+      if (elShadowCss) {
+        if (el.type === 'text') {
+          canvasTextStyle.textShadow = elShadowCss;
+        } else {
+          canvasTextStyle.boxShadow = elShadowCss;
+        }
+      }
+      if (elGradientCss && el.type === 'text') {
+        canvasTextStyle.background = elGradientCss;
+        canvasTextStyle.backgroundClip = 'text';
+        (canvasTextStyle as any).WebkitBackgroundClip = 'text';
+        (canvasTextStyle as any).WebkitTextFillColor = 'transparent';
+        canvasTextStyle.color = 'transparent';
+      }
 
       return (
         <div
@@ -681,6 +730,7 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
             wordBreak: 'break-word',
             userSelect: 'none',
             ...glowStyle,
+            ...canvasTextStyle,
             ...(el.clipTop != null || el.clipRight != null || el.clipBottom != null || el.clipLeft != null
               ? { clipPath: `inset(${el.clipTop ?? 0}px ${el.clipRight ?? 0}px ${el.clipBottom ?? 0}px ${el.clipLeft ?? 0}px)` }
               : {}),
@@ -970,106 +1020,61 @@ export const PageRenderer: React.FC<PageRendererProps> = ({
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Cormorant+Garamond:ital,wght@0,450;0,650;1,450&family=Fira+Code:wght@400;600&family=Inter:wght@400;600;950&family=JetBrains+Mono:wght@500;800&family=Merriweather:wght@400;700&family=Outfit:wght@400;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Space+Grotesk:wght@600;700;800&family=Syne:wght@700;800&display=swap');
       `}</style>
 
-      {/* BACKGROUND GRAPHIC ACCENTS - Shared Pattern Vibes */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-        {state.currentTheme === 'neon-lime' && (
-          <div className="absolute inset-0">
-            {/* Custom cyber grid and angled stripes */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
-            <div className="absolute top-20 right-0 w-96 h-96 bg-lime-400/10 rounded-full filter blur-[120px]" />
-            <div className="absolute bottom-20 left-0 w-96 h-96 bg-zinc-800/20 rounded-full filter blur-[100px]" />
-          </div>
-        )}
+      {/* BACKGROUND GRAPHIC ACCENTS - Multi-layer compositing with blur & blend-modes */}
+      {(() => {
+        const bgLayers = (state.backgroundLayers && state.backgroundLayers.length > 0)
+          ? state.backgroundLayers
+          : [{ themeId: state.currentTheme, opacity: 1, blendMode: 'normal' } as const];
+        const bgBlur = state.backgroundBlur || 0;
 
-        {state.currentTheme === 'warm-ivory' && (
-          <div className="absolute inset-0">
-            {/* Elegant classic book grids & leaf textures */}
-            <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#991b1b]/5 to-transparent" />
-            <div className="absolute inset-0 bg-[radial-gradient(#991b1b08_1px,transparent_1px)] [background-size:16px_16px]" />
-            <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full border border-red-900/5" />
-            <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full border border-red-900/5" />
-          </div>
-        )}
+        const renderThemeBg = (thId: ThemeId) => {
+          switch (thId) {
+            case 'neon-lime':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" /><div className="absolute top-20 right-0 w-96 h-96 bg-lime-400/10 rounded-full filter blur-[120px]" /><div className="absolute bottom-20 left-0 w-96 h-96 bg-zinc-800/20 rounded-full filter blur-[100px]" /></div>);
+            case 'warm-ivory':
+              return (<div className="absolute inset-0"><div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#991b1b]/5 to-transparent" /><div className="absolute inset-0 bg-[radial-gradient(#991b1b08_1px,transparent_1px)] [background-size:16px_16px]" /><div className="absolute -top-20 -right-20 w-80 h-80 rounded-full border border-red-900/5" /><div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full border border-red-900/5" /></div>);
+            case 'midnight-space':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(6,182,212,0.15),transparent_50%)]" /><div className="absolute inset-0 bg-[linear-gradient(to_right,#0891b20a_1px,transparent_1px),linear-gradient(to_bottom,#0891b20a_1px,transparent_1px)] bg-[size:40px_40px]" /><div className="absolute top-1/3 left-10 w-2 h-2 bg-yellow-400 rounded-full animate-ping" /><div className="absolute top-1/4 right-24 w-1 h-1 bg-white rounded-full opacity-80" /><div className="absolute bottom-1/3 right-10 w-2 h-2 bg-cyan-400 rounded-full opacity-60" /></div>);
+            case 'retro-teal':
+              return (<div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(#115e59 8%, transparent 8%)", backgroundSize: "12px 12px" }}><div className="absolute inset-0 bg-gradient-to-tr from-amber-500/5 via-teal-500/10 to-transparent" /></div>);
+            case 'royal-indigo':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[linear-gradient(30deg,#1e1b4b_20%,#312e81_50%,#1e1b4b_80%)]" /><div className="absolute top-10 right-10 w-48 h-48 rounded-full border-4 border-amber-400/10" /><div className="absolute bottom-20 left-10 w-64 h-64 rounded-full border-2 border-amber-400/5" /></div>);
+            case 'cyberpunk-sunset':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,#ff007f10_0%,transparent_60%)]" /><div className="absolute top-10 right-10 w-48 h-48 bg-[#ff007f]/10 rounded-full filter blur-[80px]" /></div>);
+            case 'forest-emerald':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,#eab30808_0%,transparent_50%)]" /><div className="absolute top-5 left-5 w-32 h-32 bg-[#eab308]/8 rounded-full filter blur-[60px]" /></div>);
+            case 'coral-charcoal':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#f43f5e10_0%,transparent_50%)]" /><div className="absolute inset-0 bg-[linear-gradient(to_right,#f43f5e08_1px,transparent_1px)] bg-[size:32px_32px]" /></div>);
+            case 'electric-violet':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,#8b5cf610_0%,transparent_50%)]" /><div className="absolute bottom-10 right-10 w-48 h-48 bg-[#ccff00]/8 rounded-full filter blur-[100px]" /></div>);
+            case 'professional-navy':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,#c9a84c08_0%,transparent_60%)]" /><div className="absolute inset-0 bg-[linear-gradient(to_right,#1e3a5f06_1px,transparent_1px)] bg-[size:32px_32px]" /><div className="absolute top-1/4 left-1/4 w-64 h-64 border border-[#c9a84c]/10 rounded-full" /><div className="absolute bottom-10 right-10 w-48 h-48 border border-[#c9a84c]/8 rounded-full" /></div>);
+            case 'sage-academy':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,#2d6a4f08_0%,transparent_50%)]" /><div className="absolute inset-0 bg-[radial-gradient(#2d6a4f06_1px,transparent_1px)] [background-size:20px_20px]" /><div className="absolute top-10 right-10 w-32 h-32 bg-[#2d6a4f]/5 rounded-full blur-3xl" /><div className="absolute bottom-20 left-5 w-24 h-24 bg-[#2d6a4f]/5 rounded-full blur-2xl" /></div>);
+            case 'burgundy-classic':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[linear-gradient(180deg,#80002008_0%,transparent_40%,#80002005_100%)]" /><div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#800020]/20 to-transparent" /><div className="absolute -top-10 -right-10 w-72 h-72 rounded-full border border-[#800020]/10" /><div className="absolute -bottom-10 -left-10 w-72 h-72 rounded-full border border-[#800020]/8" /></div>);
+            case 'steel-professional':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[linear-gradient(to_right,#4682b406_1px,transparent_1px),linear-gradient(to_bottom,#4682b406_1px,transparent_1px)] bg-[size:20px_20px]" /><div className="absolute top-0 right-0 w-96 h-96 bg-[#4682b4]/5 rounded-full blur-[100px]" /><div className="absolute bottom-0 left-0 w-64 h-64 bg-[#4682b4]/3 rounded-full blur-[80px]" /></div>);
+            case 'charcoal-amber':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,#ff8c0006_0%,transparent_60%)]" /><div className="absolute inset-0 bg-[linear-gradient(45deg,#33415508_1px,transparent_1px)] bg-[size:24px_24px]" /><div className="absolute top-1/3 -left-10 w-48 h-48 bg-[#ff8c00]/5 rounded-full blur-[60px]" /><div className="absolute bottom-1/4 right-0 w-40 h-40 bg-[#ff8c00]/5 rounded-full blur-[50px]" /></div>);
+            case 'ocean-clarity':
+              return (<div className="absolute inset-0"><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#006d7706_0%,transparent_50%)]" /><div className="absolute inset-0 bg-[linear-gradient(to_right,#83c5be08_1px,transparent_1px),linear-gradient(to_bottom,#83c5be08_1px,transparent_1px)] bg-[size:28px_28px]" /><div className="absolute top-20 right-20 w-56 h-56 border border-[#006d77]/10 rounded-full" /><div className="absolute bottom-10 left-1/3 w-4 h-4 bg-[#006d77]/20 rounded-full" /><div className="absolute top-1/3 right-1/4 w-2 h-2 bg-[#83c5be]/30 rounded-full" /></div>);
+            default: return null;
+          }
+        };
 
-        {state.currentTheme === 'midnight-space' && (
-          <div className="absolute inset-0">
-            {/* Celestial stars and cyan geometric triangles */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(6,182,212,0.15),transparent_50%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#0891b20a_1px,transparent_1px),linear-gradient(to_bottom,#0891b20a_1px,transparent_1px)] bg-[size:40px_40px]" />
-            <div className="absolute top-1/3 left-10 w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
-            <div className="absolute top-1/4 right-24 w-1 h-1 bg-white rounded-full opacity-80" />
-            <div className="absolute bottom-1/3 right-10 w-2 h-2 bg-cyan-400 rounded-full opacity-60" />
+        return (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none"
+               style={{ filter: bgBlur > 0 ? `blur(${bgBlur}px)` : undefined }}>
+            {bgLayers.map((layer, i) => (
+              <div key={i} className="absolute inset-0"
+                   style={{ opacity: layer.opacity, mixBlendMode: layer.blendMode as any }}>
+                {renderThemeBg(layer.themeId as ThemeId)}
+              </div>
+            ))}
           </div>
-        )}
-
-        {state.currentTheme === 'retro-teal' && (
-          <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(#115e59 8%, transparent 8%)", backgroundSize: "12px 12px" }}>
-            <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/5 via-teal-500/10 to-transparent" />
-          </div>
-        )}
-
-        {state.currentTheme === 'royal-indigo' && (
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-[linear-gradient(30deg,#1e1b4b_20%,#312e81_50%,#1e1b4b_80%)]" />
-            <div className="absolute top-10 right-10 w-48 h-48 rounded-full border-4 border-amber-400/10" />
-            <div className="absolute bottom-20 left-10 w-64 h-64 rounded-full border-2 border-amber-400/5" />
-          </div>
-        )}
-
-        {state.currentTheme === 'professional-navy' && (
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,#c9a84c08_0%,transparent_60%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e3a5f06_1px,transparent_1px)] bg-[size:32px_32px]" />
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 border border-[#c9a84c]/10 rounded-full" />
-            <div className="absolute bottom-10 right-10 w-48 h-48 border border-[#c9a84c]/8 rounded-full" />
-          </div>
-        )}
-
-        {state.currentTheme === 'sage-academy' && (
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,#2d6a4f08_0%,transparent_50%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(#2d6a4f06_1px,transparent_1px)] [background-size:20px_20px]" />
-            <div className="absolute top-10 right-10 w-32 h-32 bg-[#2d6a4f]/5 rounded-full blur-3xl" />
-            <div className="absolute bottom-20 left-5 w-24 h-24 bg-[#2d6a4f]/5 rounded-full blur-2xl" />
-          </div>
-        )}
-
-        {state.currentTheme === 'burgundy-classic' && (
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,#80002008_0%,transparent_40%,#80002005_100%)]" />
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#800020]/20 to-transparent" />
-            <div className="absolute -top-10 -right-10 w-72 h-72 rounded-full border border-[#800020]/10" />
-            <div className="absolute -bottom-10 -left-10 w-72 h-72 rounded-full border border-[#800020]/8" />
-          </div>
-        )}
-
-        {state.currentTheme === 'steel-professional' && (
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#4682b406_1px,transparent_1px),linear-gradient(to_bottom,#4682b406_1px,transparent_1px)] bg-[size:20px_20px]" />
-            <div className="absolute top-0 right-0 w-96 h-96 bg-[#4682b4]/5 rounded-full blur-[100px]" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#4682b4]/3 rounded-full blur-[80px]" />
-          </div>
-        )}
-
-        {state.currentTheme === 'charcoal-amber' && (
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,#ff8c0006_0%,transparent_60%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(45deg,#33415508_1px,transparent_1px)] bg-[size:24px_24px]" />
-            <div className="absolute top-1/3 -left-10 w-48 h-48 bg-[#ff8c00]/5 rounded-full blur-[60px]" />
-            <div className="absolute bottom-1/4 right-0 w-40 h-40 bg-[#ff8c00]/5 rounded-full blur-[50px]" />
-          </div>
-        )}
-
-        {state.currentTheme === 'ocean-clarity' && (
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#006d7706_0%,transparent_50%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#83c5be08_1px,transparent_1px),linear-gradient(to_bottom,#83c5be08_1px,transparent_1px)] bg-[size:28px_28px]" />
-            <div className="absolute top-20 right-20 w-56 h-56 border border-[#006d77]/10 rounded-full" />
-            <div className="absolute bottom-10 left-1/3 w-4 h-4 bg-[#006d77]/20 rounded-full" />
-            <div className="absolute top-1/3 right-1/4 w-2 h-2 bg-[#83c5be]/30 rounded-full" />
-          </div>
-        )}
-      </div>
+        );
+      })()}
 
       {/* 1. COVER PAGE VIEW */}
       {currentPage === 'cover' && (

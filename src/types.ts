@@ -108,6 +108,51 @@ export interface ElementTransform {
   rotation: number;   // rotation degrees (0-360)
 }
 
+export interface ElementShadowConfig {
+  color: string;
+  blur: number;
+  offsetX: number;
+  offsetY: number;
+  spread: number;
+  inset: boolean;
+}
+
+export interface GradientConfig {
+  type: 'linear' | 'radial';
+  angle: number;
+  colors: string[];
+  stops?: number[];
+}
+
+export interface BackgroundLayer {
+  themeId: ThemeId;
+  opacity: number;
+  blendMode: string;
+}
+
+export function gradientToCss(g: GradientConfig): string {
+  if (g.type === 'linear') {
+    const stops = g.colors.map((c, i) => {
+      const p = g.stops?.[i] !== undefined ? g.stops![i] : Math.round((i / (g.colors.length - 1)) * 100);
+      return `${c} ${p}%`;
+    }).join(', ');
+    return `linear-gradient(${g.angle}deg, ${stops})`;
+  }
+  const stops = g.colors.map((c, i) => {
+    const p = g.stops?.[i] !== undefined ? g.stops![i] : Math.round((i / (g.colors.length - 1)) * 100);
+    return `${c} ${p}%`;
+  }).join(', ');
+  return `radial-gradient(circle, ${stops})`;
+}
+
+export function shadowToCss(s: ElementShadowConfig, forText: boolean): string {
+  const sI = s.inset && !forText ? 'inset ' : '';
+  if (forText) {
+    return `${sI}${s.offsetX}px ${s.offsetY}px ${s.blur}px ${s.color}`;
+  }
+  return `${sI}${s.offsetX}px ${s.offsetY}px ${s.blur}px ${s.spread}px ${s.color}`;
+}
+
 export interface DuplicatedElement {
   id: string;
   type: 'text' | 'image';
@@ -121,6 +166,8 @@ export interface DuplicatedElement {
   customFont?: string;
   customAccent?: string;
   customStyles?: { bold?: boolean; italic?: boolean; underline?: boolean };
+  customShadow?: ElementShadowConfig;
+  customGradient?: GradientConfig;
 }
 
 export interface CanvasElement {
@@ -152,6 +199,8 @@ export interface CanvasElement {
   clipRight?: number;
   clipBottom?: number;
   clipLeft?: number;
+  shadow?: ElementShadowConfig;
+  gradient?: GradientConfig;
 }
 
 export interface AppState {
@@ -183,5 +232,9 @@ export interface AppState {
   photoGlowWidth?: number; // slider override e.g. 10 to 40 px
   elementGlowColors?: Record<string, string | undefined>;
   elementGlowWidths?: Record<string, number | undefined>;
+  elementShadows?: Record<string, ElementShadowConfig | undefined>;
+  elementGradients?: Record<string, GradientConfig | undefined>;
+  backgroundBlur?: number;
+  backgroundLayers?: BackgroundLayer[];
 }
 

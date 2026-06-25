@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { PageType, ThemeId, AppState, DuplicatedElement, CanvasElement } from './types';
+import { PageType, ThemeId, AppState, DuplicatedElement, CanvasElement, ElementShadowConfig, GradientConfig, BackgroundLayer } from './types';
 import { INITIAL_STATE, COMPILATION_THEMES } from './data';
 import { PageRenderer } from './components/PageRenderer';
 import { EditorSidebar } from './components/EditorSidebar';
@@ -412,6 +412,76 @@ export default function App() {
       ...prev,
       elementGlowWidths: { ...(prev.elementGlowWidths || {}), [elementId]: width },
     }));
+  };
+
+  // Element shadow handlers
+  const handleUpdateElementShadow = (elementId: string, shadow: ElementShadowConfig | undefined) => {
+    setState((prev) => ({
+      ...prev,
+      elementShadows: { ...(prev.elementShadows || {}), [elementId]: shadow },
+    }));
+  };
+
+  // Duplicate element shadow handler
+  const handleUpdateDuplicateShadow = (dupId: string, shadow: ElementShadowConfig | undefined) => {
+    setState((prev) => {
+      const dups = [...(prev.duplicatedElements || [])];
+      const idx = dups.findIndex((d) => d.id === dupId);
+      if (idx === -1) return prev;
+      dups[idx] = { ...dups[idx], customShadow: shadow };
+      return { ...prev, duplicatedElements: dups };
+    });
+  };
+
+  // Element gradient handlers
+  const handleUpdateElementGradient = (elementId: string, gradient: GradientConfig | undefined) => {
+    setState((prev) => ({
+      ...prev,
+      elementGradients: { ...(prev.elementGradients || {}), [elementId]: gradient },
+    }));
+  };
+
+  const handleUpdateDuplicateGradient = (dupId: string, gradient: GradientConfig | undefined) => {
+    setState((prev) => {
+      const dups = [...(prev.duplicatedElements || [])];
+      const idx = dups.findIndex((d) => d.id === dupId);
+      if (idx === -1) return prev;
+      dups[idx] = { ...dups[idx], customGradient: gradient };
+      return { ...prev, duplicatedElements: dups };
+    });
+  };
+
+  // Background layer handlers
+  const handleAddBackgroundLayer = (themeId: ThemeId) => {
+    setState((prev) => {
+      const layers = prev.backgroundLayers || [];
+      const newLayer: BackgroundLayer = { themeId, opacity: 0.5, blendMode: 'normal' };
+      return { ...prev, backgroundLayers: [...layers, newLayer] };
+    });
+  };
+
+  const handleRemoveBackgroundLayer = (index: number) => {
+    setState((prev) => {
+      const layers = [...(prev.backgroundLayers || [])];
+      if (index >= 0 && index < layers.length) {
+        layers.splice(index, 1);
+      }
+      return { ...prev, backgroundLayers: layers };
+    });
+  };
+
+  const handleUpdateBackgroundLayer = (index: number, updates: Partial<BackgroundLayer>) => {
+    setState((prev) => {
+      const layers = [...(prev.backgroundLayers || [])];
+      if (index >= 0 && index < layers.length) {
+        layers[index] = { ...layers[index], ...updates };
+      }
+      return { ...prev, backgroundLayers: layers };
+    });
+  };
+
+  const handleSetBackgroundBlur = (blur: number) => {
+    setState((prev) => ({ ...prev, backgroundBlur: blur }));
   };
 
   // Canvas free-form element handlers
@@ -858,26 +928,34 @@ export default function App() {
           onUpdateDuplicateTransform={handleUpdateDuplicateTransform}
           onUpdateDuplicateText={handleUpdateDuplicateText}
           onUpdateDuplicateStyle={handleUpdateDuplicateStyle}
-          onUpdateElementGlow={handleUpdateElementGlow}
-          onUpdateElementGlowWidth={handleUpdateElementGlowWidth}
-          onAddCanvasElement={handleAddCanvasElement}
-          onUpdateCanvasElement={handleUpdateCanvasElement}
-          onRemoveCanvasElement={handleRemoveCanvasElement}
-          selectedCanvasId={selectedCanvasId}
-          onSelectCanvas={(id) => {
-            setSelectedCanvasId(id);
-            setActiveElement(null);
-          }}
-          onRemoveElementCopy={handleRemoveElementCopy}
-          onImportHtml={handleImportHtml}
-          onSaveDesign={handleSaveDesign}
-          onLoadDesign={handleLoadDesign}
-          onDeleteDesign={handleDeleteDesign}
-          savedDesigns={Object.keys(savedDesigns)}
-          appTheme={state.appTheme || 'light'}
-          onExportElementStyle={handleExportElementStyle}
-          onImportElementStyle={handleImportElementStyle}
-        />
+           onUpdateElementGlow={handleUpdateElementGlow}
+           onUpdateElementGlowWidth={handleUpdateElementGlowWidth}
+           onUpdateElementShadow={handleUpdateElementShadow}
+           onUpdateElementGradient={handleUpdateElementGradient}
+           onAddCanvasElement={handleAddCanvasElement}
+           onUpdateCanvasElement={handleUpdateCanvasElement}
+           onRemoveCanvasElement={handleRemoveCanvasElement}
+           selectedCanvasId={selectedCanvasId}
+           onSelectCanvas={(id) => {
+             setSelectedCanvasId(id);
+             setActiveElement(null);
+           }}
+           onRemoveElementCopy={handleRemoveElementCopy}
+           onImportHtml={handleImportHtml}
+           onSaveDesign={handleSaveDesign}
+           onLoadDesign={handleLoadDesign}
+           onDeleteDesign={handleDeleteDesign}
+           savedDesigns={Object.keys(savedDesigns)}
+           appTheme={state.appTheme || 'light'}
+           onExportElementStyle={handleExportElementStyle}
+           onImportElementStyle={handleImportElementStyle}
+           onUpdateDuplicateShadow={handleUpdateDuplicateShadow}
+           onUpdateDuplicateGradient={handleUpdateDuplicateGradient}
+           onAddBackgroundLayer={handleAddBackgroundLayer}
+           onRemoveBackgroundLayer={handleRemoveBackgroundLayer}
+           onUpdateBackgroundLayer={handleUpdateBackgroundLayer}
+           onSetBackgroundBlur={handleSetBackgroundBlur}
+         />
 
         {/* Hidden file input for importing designs */}
         <input
@@ -987,30 +1065,32 @@ export default function App() {
               }}
               className="group"
             >
-              <PageRenderer
-                state={state}
-                colors={activeTheme.colors}
-                onUpdateText={handleUpdateText}
-                onSelectElement={(sec, fld, lbl, dupId) => {
-                  setActiveElement({ section: sec, field: fld, label: lbl, duplicatedId: dupId });
-                }}
-                activeElementId={activeElement ? `${activeElement.section}.${activeElement.field}` : null}
-                activeDuplicateId={activeElement?.duplicatedId}
-                onUpdateTransform={handleUpdateTransform}
-                onUpdatePhoto={handleUpdatePhoto}
-                onRemoveElementCopy={handleRemoveElementCopy}
-                onDuplicateAnyElement={handleDuplicateAnyElement}
-                onRemoveDuplicatedElement={handleRemoveDuplicatedElement}
-                onUpdateDuplicateTransform={handleUpdateDuplicateTransform}
-                onUpdateDuplicateText={handleUpdateDuplicateText}
-                onUpdateDuplicateStyle={handleUpdateDuplicateStyle}
-                onUpdateElementGlow={handleUpdateElementGlow}
-                onUpdateElementGlowWidth={handleUpdateElementGlowWidth}
-                onUpdateCanvasElement={handleUpdateCanvasElement}
-                onRemoveCanvasElement={handleRemoveCanvasElement}
-                selectedCanvasId={selectedCanvasId}
-                onSelectCanvas={setSelectedCanvasId}
-              />
+               <PageRenderer
+                 state={state}
+                 colors={activeTheme.colors}
+                 onUpdateText={handleUpdateText}
+                 onSelectElement={(sec, fld, lbl, dupId) => {
+                   setActiveElement({ section: sec, field: fld, label: lbl, duplicatedId: dupId });
+                 }}
+                 activeElementId={activeElement ? `${activeElement.section}.${activeElement.field}` : null}
+                 activeDuplicateId={activeElement?.duplicatedId}
+                 onUpdateTransform={handleUpdateTransform}
+                 onUpdatePhoto={handleUpdatePhoto}
+                 onRemoveElementCopy={handleRemoveElementCopy}
+                 onDuplicateAnyElement={handleDuplicateAnyElement}
+                 onRemoveDuplicatedElement={handleRemoveDuplicatedElement}
+                 onUpdateDuplicateTransform={handleUpdateDuplicateTransform}
+                 onUpdateDuplicateText={handleUpdateDuplicateText}
+                 onUpdateDuplicateStyle={handleUpdateDuplicateStyle}
+                 onUpdateElementGlow={handleUpdateElementGlow}
+                 onUpdateElementGlowWidth={handleUpdateElementGlowWidth}
+                 onUpdateElementShadow={handleUpdateElementShadow}
+                 onUpdateElementGradient={handleUpdateElementGradient}
+                 onUpdateCanvasElement={handleUpdateCanvasElement}
+                 onRemoveCanvasElement={handleRemoveCanvasElement}
+                 selectedCanvasId={selectedCanvasId}
+                 onSelectCanvas={setSelectedCanvasId}
+               />
 
               {/* Hint message box showing up on layout hover */}
               {!state.hideDragTooltips && (

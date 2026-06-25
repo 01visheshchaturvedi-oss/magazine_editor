@@ -433,5 +433,9 @@ export const INITIAL_STATE: AppState = {
   duplicatedElements: [],
   canvasElements: [],
   hideDragTooltips: false,
-  appTheme: 'light'
+  appTheme: 'light',
+  elementShadows: {},
+  elementGradients: {},
+  backgroundBlur: 0,
+  backgroundLayers: []
 };
